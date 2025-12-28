@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>룡수학 | The Future of Intelligence</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Gemini SDK -->
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@1.0.0"
+      }
+    }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfcfc;
+            color: #111111;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+        
+        /* Shimmer Animation */
+        @keyframes shimmer {
+            0% { transform: translateX(-150%) skewX(-20deg); }
+            100% { transform: translateX(150%) skewX(-20deg); }
+        }
+        .shimmer-active {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+            animation: shimmer 2s infinite;
+            mix-blend-mode: overlay;
+        }
+
+        /* Career Item Animations */
+        .career-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s ease-out;
+        }
+        .career-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="selection:bg-black selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-12 py-6 bg-white/40 backdrop-blur-xl border-b border-white/10">
+        <div class="flex items-center space-x-2">
+            <div class="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                <div class="w-3 h-3 bg-white rounded-sm rotate-45"></div>
+            </div>
+            <span class="text-lg font-bold tracking-tighter uppercase">룡수학</span>
+        </div>
+        <div class="hidden lg:flex space-x-10 text-[11px] font-bold tracking-[0.15em] uppercase text-gray-700">
+            <a href="https://winsanai-sudo.github.io/sys/system1.html" target="_blank" class="hover:text-black transition-colors">Contact</a>
+            <a href="#philosophy" class="hover:text-black transition-colors">Philosophy</a>
+            <a href="#chat" class="hover:text-black transition-colors">AI Assistant</a>
+        </div>
+        <button class="lg:hidden"><i data-lucide="menu"></i></button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 px-8 max-w-7xl mx-auto overflow-hidden">
+        <div class="flex flex-col items-center text-center space-y-12 relative">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 select-none pointer-events-none">
+                <span class="text-[12rem] lg:text-[22rem] font-black text-gray-100 tracking-tighter opacity-70">RYONG</span>
+            </div>
+            <div class="space-y-4 z-10">
+                <h1 class="text-6xl lg:text-9xl font-bold tracking-tighter leading-none">
+                    룡수학<span class="text-gray-300">.</span>
+                </h1>
+                <p class="text-[11px] font-bold uppercase tracking-[0.5em] text-gray-400">RYONG MATHEMATICS ROBOTICS</p>
+            </div>
+            
+            <div class="w-full relative max-w-5xl">
+                <!-- Floating Buttons -->
+                <div class="absolute top-8 lg:top-4 z-20 flex flex-wrap justify-center gap-4 lg:gap-8 px-4 w-full">
+                    <a href="https://winsanai-sudo.github.io/sys/system1.html" target="_blank" class="px-6 py-3 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-2xl text-[12px] font-bold uppercase tracking-wider transition-all hover:bg-white hover:scale-110 active:scale-95 shadow-xl shadow-black/5">수학시스템</a>
+                    <a href="https://winsanai-sudo.github.io/2026/yy.html" target="_blank" class="px-6 py-3 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-2xl text-[12px] font-bold uppercase tracking-wider transition-all hover:bg-white hover:scale-110 active:scale-95 shadow-xl shadow-black/5">윈터시간표</a>
+                    <a href="https://www.youtube.com/@Tr-gm5by" target="_blank" class="px-6 py-3 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-2xl text-[12px] font-bold uppercase tracking-wider transition-all hover:bg-white hover:scale-110 active:scale-95 shadow-xl shadow-black/5">류튜브강의</a>
+                    <a href="https://www.instagram.com/new_yong_s/" target="_blank" class="px-6 py-3 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-2xl text-[12px] font-bold uppercase tracking-wider transition-all hover:bg-white hover:scale-110 active:scale-95 shadow-xl shadow-black/5">인스타그램</a>
+                </div>
+                <!-- Spline Viewer -->
+                <div class="w-full h-[500px] lg:h-[700px] relative">
+                    <iframe src="https://my.spline.design/nexbotrobotcharacterconcept-P4QicMzeLMUObEl5iqqcMyt5/" frameBorder="0" width="100%" height="100%" class="rounded-3xl"></iframe>
+                    <div class="absolute bottom-0 left-0 right-0 h-16 bg-[#fcfcfc] pointer-events-none z-10"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 pt-4 z-10">
+                <a href="https://open.kakao.com/o/sH6QozMb" target="_blank" class="bg-black text-white px-14 py-5 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] flex items-center justify-center group transition-all hover:scale-105 shadow-2xl shadow-black/20">
+                    상담 예약하기 <i data-lucide="chevron-right" class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <button class="bg-white px-14 py-5 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] border border-gray-200 hover:bg-gray-50 transition-all shadow-sm">교육 커리큘럼</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stat Counter Section -->
+    <section id="stat-section" class="py-32 flex flex-col items-center justify-center bg-white overflow-hidden min-h-[80vh]">
+        <div class="relative mb-2">
+            <h2 id="counter-display" class="text-[10rem] md:text-[18rem] font-bold tracking-tighter leading-none text-gray-100 transition-all duration-700 ease-out">1</h2>
+            <div id="shimmer-overlay" class=""></div>
+        </div>
+        <div id="stat-info" class="mb-16 text-center opacity-0 translate-y-4 transition-all duration-1000">
+            <p class="text-xl md:text-2xl font-bold tracking-tight text-gray-500 mb-1">11년 연속 강의평가 1위</p>
+            <p class="text-xs md:text-sm font-bold tracking-[0.2em] text-gray-400 uppercase">강남대성, 메가스터디 러셀의 전설</p>
+        </div>
+        <div id="career-container" class="flex flex-col items-center space-y-4">
+            <p class="career-item text-xl md:text-3xl font-bold tracking-tight text-gray-800">現) 대치 두각학원</p>
+            <p class="career-item text-xl md:text-3xl font-bold tracking-tight text-gray-800">現) 시대정신학원 동산고</p>
+            <p class="career-item text-xl md:text-3xl font-bold tracking-tight text-gray-800">前) 강남대성</p>
+            <p class="career-item text-xl md:text-3xl font-bold tracking-tight text-gray-800">前) 메가스터디 러셀</p>
+            <p class="career-item text-xl md:text-3xl font-bold tracking-tight text-gray-800">前) 세정학원</p>
+        </div>
+    </section>
+
+    <!-- Philosophy Section -->
+    <section id="philosophy" class="py-32 px-8 bg-gray-50/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-24">
+                <p class="text-[11px] font-bold uppercase tracking-[0.5em] text-gray-400 mb-6">Ryong Philosophy</p>
+                <h2 class="text-5xl md:text-7xl font-bold tracking-tighter">완벽을 위한 3가지 고집</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+                <div class="group space-y-8">
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        <i data-lucide="shield-check" class="w-8 h-8 text-black"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-5xl font-bold tracking-tighter">꼼꼼</h3>
+                        <p class="text-gray-500 text-lg font-medium leading-relaxed">철저한 학생 관리 시스템으로 한 명의 낙오자도 발생하지 않도록 꼼꼼하게 관리합니다.</p>
+                    </div>
+                    <div class="h-1 w-16 bg-black/10 group-hover:w-full transition-all duration-700"></div>
+                </div>
+                <div class="group space-y-8">
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-black"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-5xl font-bold tracking-tighter">깔끔</h3>
+                        <p class="text-gray-500 text-lg font-medium leading-relaxed">복잡한 개념도 가장 명쾌하고 군더더기 없는 논리로 깔끔하게 전달합니다.</p>
+                    </div>
+                    <div class="h-1 w-16 bg-black/10 group-hover:w-full transition-all duration-700"></div>
+                </div>
+                <div class="group space-y-8">
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        <i data-lucide="target" class="w-8 h-8 text-black"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-5xl font-bold tracking-tighter">깐깐</h3>
+                        <p class="text-gray-500 text-lg font-medium leading-relaxed">작은 실수도 용납하지 않는 깐깐한 오답 체크로 실전 완벽함을 추구합니다.</p>
+                    </div>
+                    <div class="h-1 w-16 bg-black/10 group-hover:w-full transition-all duration-700"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ChatBot Section -->
+    <section id="chat" class="max-w-4xl mx-auto my-24 p-6 md:p-10 bg-white border border-gray-100 rounded-[2.5rem] shadow-2xl shadow-black/5">
+        <div class="mb-10 text-center">
+            <h2 class="text-3xl font-bold tracking-tight mb-2">Consult with NexBot</h2>
+            <p class="text-gray-500 text-sm">교육 시스템이나 학습 커리큘럼에 대해 물어보세요.</p>
+        </div>
+        <div id="chat-messages" class="h-[450px] overflow-y-auto mb-8 space-y-6 px-4 scroll-smooth custom-scrollbar">
+            <!-- Initial Message -->
+            <div class="flex justify-start">
+                <div class="flex items-start max-w-[85%] space-x-3">
+                    <div class="p-2.5 rounded-full bg-gray-100 shrink-0"><i data-lucide="bot" class="w-4 h-4 text-black"></i></div>
+                    <div class="p-4 rounded-2xl text-sm bg-gray-50 text-gray-800 rounded-tl-none border border-gray-100">안녕하세요. 룡수학의 지능형 코어입니다. 교육 시스템에 대해 궁금한 점이 있으신가요?</div>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3 bg-gray-50 p-2 rounded-full border border-gray-100 focus-within:ring-2 focus-within:ring-black/5">
+            <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." class="flex-1 bg-transparent border-none px-6 py-3 text-sm outline-none">
+            <button id="chat-send" class="bg-black text-white p-4 rounded-full hover:scale-105 transition-transform shadow-lg">
+                <i data-lucide="send" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-24 px-8 text-center border-t border-gray-100 max-w-7xl mx-auto">
+        <div class="flex flex-col items-center space-y-12">
+            <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+                <div class="w-6 h-6 bg-white rounded-sm rotate-45"></div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-12 gap-y-4 text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400">
+                <a href="#" class="hover:text-black transition-colors">수학시스템</a>
+                <a href="#" class="hover:text-black transition-colors">윈터시간표</a>
+                <a href="#" class="hover:text-black transition-colors">류튜브강의</a>
+                <a href="#" class="hover:text-black transition-colors">인스타그램</a>
+            </div>
+            <p class="text-[9px] text-gray-300 font-bold uppercase tracking-[0.3em]">© 2026 룡수학. ALL RIGHTS RESERVED.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // 1. Icons Initialization
+        lucide.createIcons();
+
+        // 2. Stat Counter Animation
+        const statSection = document.getElementById('stat-section');
+        const counterDisplay = document.getElementById('counter-display');
+        const shimmerOverlay = document.getElementById('shimmer-overlay');
+        const statInfo = document.getElementById('stat-info');
+        const careerItems = document.querySelectorAll('.career-item');
+        
+        let started = false;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !started) {
+                started = true;
+                runCounter();
+            }
+        }, { threshold: 0.3 });
+        observer.observe(statSection);
+
+        function runCounter() {
+            let count = 1;
+            const timer = setInterval(() => {
+                count++;
+                counterDisplay.innerText = count;
+                if (count >= 11) {
+                    clearInterval(timer);
+                    finalizeCounter();
+                }
+            }, 80);
+        }
+
+        function finalizeCounter() {
+            counterDisplay.classList.add('scale-110', 'text-black', 'drop-shadow-2xl');
+            shimmerOverlay.classList.add('shimmer-active');
+            setTimeout(() => {
+                statInfo.classList.remove('opacity-0', 'translate-y-4');
+                careerItems.forEach((item, idx) => {
+                    setTimeout(() => item.classList.add('visible'), (idx + 1) * 200 + 600);
+                });
+            }, 1000);
+        }
+
+        // 3. AI ChatBot Logic
+        const apiKey = ""; // API Key is handled by runtime
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        async function getGeminiResponse(query) {
+            const systemPrompt = `You are 룡수학 (Ryong Math), a high-end personal assistant and educational robot. 
+            Tone: professional, visionary, mathematically precise. 
+            Height: 173cm, Powered by Neural Link Generation 5. Respond in Korean.`;
+
+            const fetchContent = async (retries = 0) => {
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: query }] }],
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                        })
+                    });
+                    const data = await res.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "응답을 가져올 수 없습니다.";
+                } catch (e) {
+                    if (retries < 5) {
+                        await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+                        return fetchContent(retries + 1);
+                    }
+                    return "시스템 오류가 발생했습니다.";
+                }
+            };
+            return await fetchContent();
+        }
+
+        function addMessage(role, text) {
+            const isUser = role === 'user';
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            msgDiv.innerHTML = `
+                <div class="flex items-start max-w-[85%] space-x-3 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}">
+                    <div class="p-2.5 rounded-full shrink-0 ${isUser ? 'bg-black' : 'bg-gray-100'}">
+                        <i data-lucide="${isUser ? 'user' : 'bot'}" class="w-4 h-4 ${isUser ? 'text-white' : 'text-black'}"></i>
+                    </div>
+                    <div class="p-4 rounded-2xl text-sm leading-relaxed ${isUser ? 'bg-black text-white rounded-tr-none shadow-lg' : 'bg-gray-50 text-gray-800 rounded-tl-none border border-gray-100'}">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            lucide.createIcons();
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function handleSend() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            addMessage('user', query);
+            chatInput.value = '';
+
+            // Loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = "flex justify-start animate-pulse";
+            loadingDiv.innerHTML = `<div class="p-4 bg-gray-50 text-gray-400 text-sm rounded-2xl">응답 생성 중...</div>`;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const response = await getGeminiResponse(query);
+            chatMessages.removeChild(loadingDiv);
+            addMessage('bot', response);
+        }
+
+        chatSend.addEventListener('click', handleSend);
+        chatInput.addEventListener('keydown', (e) => e.key === 'Enter' && handleSend());
+    </script>
+</body>
+</html>
