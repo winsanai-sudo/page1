@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>룡T 수학 성적관리</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        #report { margin-top: 20px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
+        .item { margin-bottom: 10px; font-size: 14px; }
+        .label { font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🐉 룡T 로그인</h2>
+        <input type="text" id="name" placeholder="학생 이름">
+        <input type="text" id="phone" placeholder="전화번호 뒷자리 4자리">
+        <button onclick="getData()">성적표 확인하기</button>
+
+        <div id="report">
+            <h3 id="r_testName" style="color:#1a73e8;"></h3>
+            <div class="item"><span class="label">반:</span> <span id="r_class"></span></div>
+            <div class="item"><span class="label">숙제 완성도:</span> <span id="r_hw"></span></div>
+            <div class="item"><span class="label">데일리 단원:</span> <span id="r_unit"></span></div>
+            <div class="item"><span class="label">틀린 문항:</span> <span id="r_wrong"></span> / <span id="r_total"></span></div>
+            <div class="item"><span class="label">본교재 질답:</span> <span id="r_mainQ"></span></div>
+            <div class="item"><span class="label">워크북 질답:</span> <span id="r_workQ"></span></div>
+        </div>
+    </div>
+
+    <script>
+        function getData() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const url = "https://script.google.com/macros/s/AKfycbwa5JD792dvgsFYgBnNUkopsCG_Op0p2h8Lh6bPG3alrLLz8ZxlzmYGKldJDRTnsZ2o5w/exec";
+
+            fetch(`${url}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) { alert("데이터를 찾을 수 없습니다."); }
+                else {
+                    document.getElementById('report').style.display = 'block';
+                    document.getElementById('r_testName').innerText = data.testName;
+                    document.getElementById('r_class').innerText = data.class;
+                    document.getElementById('r_hw').innerText = data.hw;
+                    document.getElementById('r_unit').innerText = data.unit;
+                    document.getElementById('r_wrong').innerText = data.wrong;
+                    document.getElementById('r_total').innerText = data.total;
+                    document.getElementById('r_mainQ').innerText = data.mainQ;
+                    document.getElementById('r_workQ').innerText = data.workQ;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
