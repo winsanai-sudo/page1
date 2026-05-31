@@ -1,0 +1,1169 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  Users, 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  Lock, 
+  Unlock, 
+  Copy, 
+  Search, 
+  BookOpen, 
+  CheckSquare, 
+  Award, 
+  LogOut, 
+  User, 
+  Info,
+  Check,
+  TrendingUp,
+  Sliders,
+  ChevronRight,
+  FileText
+} from 'lucide-react';
+
+// Generates exactly 54 users (27 Juniors, 27 Seniors) with simulated 1~2 week entries
+const generateMockUsers = () => {
+  const familyNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황'];
+  const givenNames = ['민준', '서연', '도현', '지우', '예준', '하은', '우진', '수아', '현우', '지아', '건우', '윤아', '진우', '서현', '선우', '다은', '민서', '재원', '소율', '승민', '하윤', '시우', '지민', '유준', '채원'];
+  
+  const users = [];
+  
+  // 27 Juniors
+  for (let i = 1; i <= 27; i++) {
+    const name = `${familyNames[i % familyNames.length]}${givenNames[i % givenNames.length]}${i}`;
+    const phone = `010-1234-${String(5000 + i).slice(1)}`;
+    users.push({
+      id: `jr-${i}`,
+      name,
+      phone,
+      role: 'Junior',
+      submissions: {
+        1: { url: i % 3 !== 0 ? `https://blog.naver.com/test_jr${i}/223456789${i}` : '', check1: i % 3 !== 0, check2: i % 3 !== 0, check3: i % 3 !== 0, check4: i % 3 !== 0 },
+        2: { url: i % 4 !== 0 ? `https://blog.naver.com/test_jr${i}/223456889${i}` : '', check1: i % 4 !== 0, check2: i % 4 !== 0, check3: i % 4 !== 0, check4: i % 4 !== 0 },
+        3: { url: '', check1: false, check2: false, check3: false, check4: false },
+        4: { url: '', check1: false, check2: false, check3: false, check4: false },
+        5: { url: '', check1: false, check2: false, check3: false, check4: false }
+      }
+    });
+  }
+  
+  // 27 Seniors (Adjusted from 29 to 27)
+  for (let i = 1; i <= 27; i++) {
+    const name = `${familyNames[(i + 5) % familyNames.length]}${givenNames[(i + 3) % givenNames.length]}${i}`;
+    const phone = `010-5678-${String(5000 + i).slice(1)}`;
+    users.push({
+      id: `sr-${i}`,
+      name,
+      phone,
+      role: 'Senior',
+      submissions: {
+        1: { url: i % 5 !== 0 ? `https://blog.naver.com/test_sr${i}/223456789${i}` : '', check1: i % 5 !== 0, check2: i % 5 !== 0, check3: i % 5 !== 0, check4: i % 5 !== 0 },
+        2: { url: i % 6 !== 0 ? `https://blog.naver.com/test_sr${i}/223456889${i}` : '', check1: i % 6 !== 0, check2: i % 6 !== 0, check3: i % 6 !== 0, check4: i % 6 !== 0 },
+        3: { url: '', check1: false, check2: false, check3: false, check4: false },
+        4: { url: '', check1: false, check2: false, check3: false, check4: false },
+        5: { url: '', check1: false, check2: false, check3: false, check4: false }
+      }
+    });
+  }
+  
+  return users;
+};
+
+export default function App() {
+  const [users, setUsers] = useState(() => generateMockUsers());
+  const [activeWeek, setActiveWeek] = useState(2); // Default active week is 2
+  const [currentUser, setCurrentUser] = useState(null); // Logged in user
+  const [isAdmin, setIsAdmin] = useState(false); // Admin mode toggle
+  
+  // Login input states
+  const [phoneInput, setPhoneInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
+  const [loginError, setLoginError] = useState('');
+  
+  // Admin search & filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All'); // All, Junior, Senior
+  const [statusFilter, setStatusFilter] = useState('All'); // All, Success, Failed, Progress (for current week)
+  const [copySelectedWeek, setCopySelectedWeek] = useState(1);
+  const [copiedNotification, setCopiedNotification] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminTab, setAdminTab] = useState('dashboard'); // dashboard, copy
+  
+  // Student form editing state
+  const [editUrl, setEditUrl] = useState('');
+  const [editCheck1, setEditCheck1] = useState(false);
+  const [editCheck2, setEditCheck2] = useState(false);
+  const [editCheck3, setEditCheck3] = useState(false);
+  const [editCheck4, setEditCheck4] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
+  // Check if a submission is successful (URL exists AND all 4 checkmarks are true)
+  const isMissionSuccess = (sub) => {
+    return sub && sub.url && sub.url.trim() !== '' && sub.check1 && sub.check2 && sub.check3 && sub.check4;
+  };
+
+  // Check if a submission is partially completed
+  const isMissionInProgress = (sub) => {
+    if (isMissionSuccess(sub)) return false;
+    return sub && ( (sub.url && sub.url.trim() !== '') || sub.check1 || sub.check2 || sub.check3 || sub.check4 );
+  };
+
+  // Handle student login by phone number & name
+  const handleStudentLogin = (e) => {
+    e.preventDefault();
+    setLoginError('');
+    
+    const formattedPhone = phoneInput.trim();
+    const formattedName = nameInput.trim();
+    
+    if (!formattedName || !formattedPhone) {
+      setLoginError('이름과 전화번호를 모두 입력해주세요.');
+      return;
+    }
+
+    const normalizedInputPhone = formattedPhone.replace(/[^0-9]/g, '');
+    const foundUser = users.find(u => {
+      const normUserPhone = u.phone.replace(/[^0-9]/g, '');
+      return normUserPhone === normalizedInputPhone && u.name === formattedName;
+    });
+
+    if (foundUser) {
+      setCurrentUser(foundUser);
+      setIsAdmin(false);
+      
+      const sub = foundUser.submissions[activeWeek];
+      setEditUrl(sub.url || '');
+      setEditCheck1(sub.check1 || false);
+      setEditCheck2(sub.check2 || false);
+      setEditCheck3(sub.check3 || false);
+      setEditCheck4(sub.check4 || false);
+      setSaveSuccessMsg('');
+    } else {
+      setLoginError('등록된 회원 정보와 일치하지 않습니다. 이름과 연락처 뒷자리를 확인해주세요.');
+    }
+  };
+
+  // Handle Admin Access
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    if (adminPasswordInput === 'akdldpa1946') {
+      setIsAdmin(true);
+      setCurrentUser(null);
+      setLoginError('');
+      setAdminPasswordInput('');
+    } else {
+      setLoginError('관리자 비밀번호가 올바르지 않습니다. (비밀번호: akdldpa1946)');
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setIsAdmin(false);
+    setPhoneInput('');
+    setNameInput('');
+    setAdminPasswordInput('');
+  };
+
+  // Save student's active week mission
+  const handleSaveMission = () => {
+    if (!currentUser) return;
+    
+    const updatedUsers = users.map(u => {
+      if (u.id === currentUser.id) {
+        return {
+          ...u,
+          submissions: {
+            ...u.submissions,
+            [activeWeek]: {
+              url: editUrl,
+              check1: editCheck1,
+              check2: editCheck2,
+              check3: editCheck3,
+              check4: editCheck4
+            }
+          }
+        };
+      }
+      return u;
+    });
+
+    setUsers(updatedUsers);
+    
+    const updatedUser = updatedUsers.find(u => u.id === currentUser.id);
+    setCurrentUser(updatedUser);
+
+    setSaveSuccessMsg('미션이 성공적으로 저장되었습니다!');
+    setTimeout(() => setSaveSuccessMsg(''), 3000);
+  };
+
+  // Admin: Update a member's specific week's submissions directly from table
+  const handleAdminOverride = (userId, weekNum, field, value) => {
+    setUsers(prevUsers => prevUsers.map(u => {
+      if (u.id === userId) {
+        return {
+          ...u,
+          submissions: {
+            ...u.submissions,
+            [weekNum]: {
+              ...u.submissions[weekNum],
+              [field]: value
+            }
+          }
+        };
+      }
+      return u;
+    }));
+  };
+
+  // Admin: Bulk Copy submitted blog links formatted text
+  const generateLinkBundleText = (weekNum) => {
+    const weekSubmissions = users
+      .filter(u => u.submissions[weekNum] && u.submissions[weekNum].url.trim() !== '')
+      .map((u, index) => {
+        return `${index + 1}. [${u.role === 'Junior' ? '주니어' : '시니어'}] ${u.name}님: ${u.submissions[weekNum].url}`;
+      });
+
+    return `📢 [블챌] ${weekNum}주차 글쓰기 미션 제출 링크 전체 모음\n\n` + 
+           `총 ${weekSubmissions.length}명이 제출 완료하였습니다.\n` +
+           `--------------------------------------------------\n` +
+           (weekSubmissions.length > 0 ? weekSubmissions.join('\n') : '제출된 링크가 아직 없습니다.');
+  };
+
+  const handleCopyToClipboard = (text) => {
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = text;
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    try {
+      document.execCommand('copy');
+      setCopiedNotification(true);
+      setTimeout(() => setCopiedNotification(false), 2000);
+    } catch (err) {
+      console.error('클립보드 복사 실패', err);
+    }
+    document.body.removeChild(tempTextArea);
+  };
+
+  const stats = useMemo(() => {
+    let totalJunior = 0;
+    let totalSenior = 0;
+    let currentWeekSuccessCount = 0;
+    let currentWeekProgressCount = 0;
+
+    users.forEach(u => {
+      if (u.role === 'Junior') totalJunior++;
+      if (u.role === 'Senior') totalSenior++;
+      
+      const activeSub = u.submissions[activeWeek];
+      if (isMissionSuccess(activeSub)) {
+        currentWeekSuccessCount++;
+      } else if (isMissionInProgress(activeSub)) {
+        currentWeekProgressCount++;
+      }
+    });
+
+    const totalCount = users.length;
+    const currentWeekFailedCount = totalCount - currentWeekSuccessCount - currentWeekProgressCount;
+
+    return {
+      totalCount,
+      totalJunior,
+      totalSenior,
+      currentWeekSuccessCount,
+      currentWeekProgressCount,
+      currentWeekFailedCount
+    };
+  }, [users, activeWeek]);
+
+  // Filtered User list for Admin Dashboard
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const searchMatch = 
+        u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        u.phone.replace(/[^0-9]/g, '').includes(searchTerm.replace(/[^0-9]/g, ''));
+      
+      if (!searchMatch) return false;
+
+      if (roleFilter !== 'All' && u.role !== roleFilter) return false;
+
+      if (statusFilter !== 'All') {
+        const sub = u.submissions[activeWeek];
+        const isSuccess = isMissionSuccess(sub);
+        const isInProgress = isMissionInProgress(sub);
+        const isFailed = !isSuccess && !isInProgress;
+
+        if (statusFilter === 'Success' && !isSuccess) return false;
+        if (statusFilter === 'Ongoing' && !isInProgress) return false;
+        if (statusFilter === 'Failed' && !isFailed) return false;
+      }
+
+      return true;
+    });
+  }, [users, searchTerm, roleFilter, statusFilter, activeWeek]);
+
+  const getSuccessWeekCount = (user) => {
+    let count = 0;
+    for (let w = 1; w <= 5; w++) {
+      if (isMissionSuccess(user.submissions[w])) {
+        count++;
+      }
+    }
+    return count;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800">
+      
+      {/* --- HEADER --- */}
+      <header className="sticky top-0 z-40 bg-emerald-600 text-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="bg-white text-emerald-600 font-bold px-3 py-1 rounded-full text-sm">블챌</span>
+            <h1 className="text-xl font-bold tracking-tight">블로그 챌린지 5주 코스</h1>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {currentUser && (
+              <div className="flex items-center space-x-3 text-sm">
+                <span className="hidden md:inline bg-emerald-700 px-3 py-1 rounded-full text-xs">
+                  {currentUser.role === 'Junior' ? '👶 주니어' : '👑 시니어'}
+                </span>
+                <span className="font-semibold">{currentUser.name} 님 로그인 중</span>
+                <button 
+                  onClick={handleLogout}
+                  className="bg-emerald-700 hover:bg-emerald-800 transition px-3 py-1.5 rounded-lg text-xs flex items-center gap-1"
+                >
+                  <LogOut size={14} /> 로그아웃
+                </button>
+              </div>
+            )}
+            {isAdmin && (
+              <div className="flex items-center space-x-3 text-sm">
+                <span className="bg-yellow-400 text-slate-900 font-bold px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                  <Sliders size={12} /> 총괄 관리자 모드
+                </span>
+                <button 
+                  onClick={handleLogout}
+                  className="bg-emerald-700 hover:bg-emerald-800 transition px-3 py-1.5 rounded-lg text-xs flex items-center gap-1"
+                >
+                  <LogOut size={14} /> 관리 종료
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* --- CONTENT CONTAINER --- */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* =========================================
+            1. GATEWAY: LOGIN SCREEN & DETAILED RULES (UI REDESIGN)
+           ========================================= */}
+        {!currentUser && !isAdmin && (
+          <div className="max-w-4xl mx-auto my-8 grid md:grid-cols-2 gap-8 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+            
+            {/* Left Column: Mission Description Rules (Beautified for high readability) */}
+            <div className="p-8 bg-gradient-to-br from-emerald-600 to-teal-800 text-white flex flex-col justify-between">
+              <div>
+                <span className="bg-emerald-500 bg-opacity-30 text-emerald-100 font-semibold px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                  MISSION INFORMATION
+                </span>
+                <h2 className="text-3xl font-extrabold mt-4 mb-6 leading-tight">
+                  블로그 챌린지<br/>5주차 필수 미션
+                </h2>
+                
+                {/* Clean, well-spaced list of specific rules requested */}
+                <div className="space-y-6 text-sm">
+                  
+                  {/* Mission 1 rule card */}
+                  <div className="bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-200 mt-0.5">
+                        <BookOpen size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-base">✍️ 글쓰기 미션</h4>
+                        <p className="text-emerald-100 text-xs mt-1 leading-relaxed">
+                          매주 새롭게 업로드할 본인의 네이버 블로그 URL 주소 입력 칸이 제공됩니다. 정확한 주소를 입력해 주셔야 팀원들이 공유받을 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mission 2 rule card */}
+                  <div className="bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-200 mt-0.5">
+                        <CheckSquare size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-base">💬 댓글달기 미션</h4>
+                        <p className="text-emerald-100 text-xs mt-1 leading-relaxed">
+                          소통 활성화를 위해 제공되는 <span className="font-semibold text-yellow-300">4가지 검증 체크박스</span>를 모두 수행해야 합니다.
+                        </p>
+                        <div className="grid grid-cols-2 gap-1.5 mt-2.5">
+                          <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-center font-medium">⏳ 1분 이상 체류</span>
+                          <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-center font-medium">🤝 서로이웃 추가</span>
+                          <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-center font-medium">❤️ 좋아요(공감)</span>
+                          <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-center font-medium">🔒 비밀댓글 작성</span>
+                        </div>
+                        <p className="text-yellow-200 text-[10px] mt-2 font-medium">
+                          ※ 4가지가 모두 체크되어야 시스템상 최종 &apos;성공&apos; 판정이 내려집니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              
+              {/* Corrected Total statistics card footer: 54 people */}
+              <div className="mt-8 border-t border-emerald-500/30 pt-6">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white/10 p-2 rounded-xl">
+                    <p className="text-[10px] text-emerald-200">총 참여자</p>
+                    <p className="text-lg font-extrabold text-white">54명</p>
+                  </div>
+                  <div className="bg-white/10 p-2 rounded-xl">
+                    <p className="text-[10px] text-emerald-200 font-medium">주니어 / 시니어</p>
+                    <p className="text-xs font-bold text-white mt-1">27명 / 27명</p>
+                  </div>
+                  <div className="bg-white/10 p-2 rounded-xl">
+                    <p className="text-[10px] text-emerald-200">챌린지 기간</p>
+                    <p className="text-lg font-bold text-yellow-300">5주간</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: User / Admin Login Forms */}
+            <div className="p-8 flex flex-col justify-center">
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">챌린저 로그인</h3>
+              <p className="text-xs text-slate-400 mb-6">등록된 본인의 이름과 전화번호로 간편하게 본인 미션을 제출해 보세요.</p>
+              
+              {/* Form 1: Student Login */}
+              <form onSubmit={handleStudentLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">이름</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <User size={18} />
+                    </span>
+                    <input 
+                      type="text"
+                      placeholder="성함을 입력하세요 (예: 김민준1)"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">휴대폰 번호</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <span className="text-xs font-bold text-slate-500">010</span>
+                    </span>
+                    <input 
+                      type="tel"
+                      placeholder="- 없이 숫자만 입력 (예: 12345001)"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition duration-150"
+                >
+                  챌린저 대시보드 입장
+                </button>
+              </form>
+
+              <div className="relative flex py-4 items-center">
+                <div className="flex-grow border-t border-slate-200"></div>
+                <span className="flex-shrink mx-4 text-slate-400 text-xs">또는</span>
+                <div className="flex-grow border-t border-slate-200"></div>
+              </div>
+
+              {/* Form 2: Admin Entrance */}
+              <form onSubmit={handleAdminLogin} className="space-y-3">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">선생님 / 총괄 관리자 로그인</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="password"
+                      placeholder="관리자 암호 (기본: akdldpa1946)"
+                      value={adminPasswordInput}
+                      onChange={(e) => setAdminPasswordInput(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <button 
+                      type="submit"
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition"
+                    >
+                      입장
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {loginError && (
+                <div className="mt-4 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-xs rounded-lg flex items-center gap-2">
+                  <XCircle size={14} className="flex-shrink-0" />
+                  <span>{loginError}</span>
+                </div>
+              )}
+
+              <div className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1">
+                <Info size={12} />
+                <span>테스트용 이름 <b>김민준1</b>, 전화번호 <b>12345001</b></span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================
+            2. STUDENT VIEW: DASHBOARD & SUBMISSIONS
+           ========================================= */}
+        {currentUser && (
+          <div className="space-y-8">
+            
+            {/* Student Welcome & Profile info banner */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="h-14 w-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl">
+                  {currentUser.name.slice(0, 2)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-slate-800">{currentUser.name}</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      currentUser.role === 'Junior' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'
+                    }`}>
+                      {currentUser.role === 'Junior' ? '주니어 클래스' : '시니어 클래스'}
+                    </span>
+                  </div>
+                  <p className="text-slate-500 text-sm mt-0.5">연락처: {currentUser.phone} | 현재까지 완료한 미션: <b className="text-emerald-600">{getSuccessWeekCount(currentUser)}개 주차</b></p>
+                </div>
+              </div>
+              <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-100 text-sm flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span>현재 진행 중 주차: <b className="text-emerald-700 font-bold">{activeWeek}주차</b></span>
+                <span className="text-slate-400 text-xs">(이 주차만 수정 및 제출 가능합니다)</span>
+              </div>
+            </div>
+
+            {/* Main Workspace grid: Left (My Progress Weeks 1-5) & Right (Active Week Work Area) */}
+            <div className="grid lg:grid-cols-3 gap-8">
+              
+              {/* Left Column: 1~5 Week Progress Summary Cards */}
+              <div className="lg:col-span-1 space-y-4">
+                <h4 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                  <Award size={20} className="text-emerald-600" />
+                  <span>주차별 나의 달성 현황</span>
+                </h4>
+                
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((weekNum) => {
+                    const sub = currentUser.submissions[weekNum];
+                    const isSuccess = isMissionSuccess(sub);
+                    const isInProgress = isMissionInProgress(sub);
+                    const isActive = weekNum === activeWeek;
+                    
+                    let cardBg = "bg-white border-slate-200";
+                    let badge = null;
+
+                    if (isActive) {
+                      cardBg = "bg-emerald-50/50 border-emerald-300 ring-2 ring-emerald-500/20";
+                    }
+
+                    if (isSuccess) {
+                      badge = <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1"><CheckCircle size={14} />성공</span>;
+                    } else if (isInProgress) {
+                      badge = <span className="bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1"><Clock size={14} />작성중</span>;
+                    } else {
+                      badge = <span className="bg-slate-100 text-slate-500 border border-slate-200 text-xs font-medium px-2.5 py-1 rounded-lg flex items-center gap-1">미제출</span>;
+                    }
+
+                    return (
+                      <div 
+                        key={weekNum} 
+                        className={`p-4 rounded-xl border transition shadow-sm flex items-center justify-between ${cardBg}`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                            isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {weekNum}W
+                          </span>
+                          <div>
+                            <p className="font-semibold text-slate-800 text-sm">{weekNum}주차 미션</p>
+                            <p className="text-xs text-slate-400 mt-0.5">글쓰기 + 댓글 4가지 체크</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {isActive && <span className="text-[10px] bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded">현재 수정 중</span>}
+                          {badge}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Active Week Interactive Workspace Form */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  
+                  {/* Workspace Header */}
+                  <div className="bg-slate-950 p-6 text-white flex items-center justify-between">
+                    <div>
+                      <span className="text-xs bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded">
+                        SUBMISSION FORM
+                      </span>
+                      <h3 className="text-xl font-bold mt-1">{activeWeek}주차 미션 수행하기</h3>
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-300 text-sm">
+                      <Unlock size={16} className="text-emerald-400" />
+                      <span>수정 가능</span>
+                    </div>
+                  </div>
+
+                  {/* Form Content */}
+                  <div className="p-6 space-y-6">
+                    
+                    {/* Mission 1: Blog URL Textbox */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                          <BookOpen size={18} className="text-emerald-600" />
+                          <span>미션 1: 본인의 블로그 글 링크(URL) 제출</span>
+                        </label>
+                        <span className="text-xs text-emerald-600 font-semibold">*필수</span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-normal">
+                        이번 주에 정성껏 작성하신 네이버 블로그 포스팅 글 전체 주소를 복사하여 붙여넣어 주세요. (예: https://blog.naver.com/...)
+                      </p>
+                      <input 
+                        type="url"
+                        placeholder="https://blog.naver.com/자신의아이디/글번호"
+                        value={editUrl}
+                        onChange={(e) => setEditUrl(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                      />
+                    </div>
+
+                    <hr className="border-slate-100" />
+
+                    {/* Mission 2: Comment Checkboxes */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <CheckSquare size={18} className="text-emerald-600" />
+                        <span>미션 2: 상대방 댓글달기 필수 수행 체크</span>
+                      </label>
+                      <p className="text-xs text-slate-400 leading-normal mb-3">
+                        이번 주에 할당된 짝꿍 또는 타 챌린저의 블로그에 방문하여 아래의 4가지 소통 미션을 정직하게 완수했는지 확인하고 체크해 주세요.
+                      </p>
+
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        
+                        {/* Check 1 */}
+                        <label className={`flex items-center p-4 rounded-xl border cursor-pointer transition ${
+                          editCheck1 ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 hover:bg-slate-50'
+                        }`}>
+                          <input 
+                            type="checkbox"
+                            checked={editCheck1}
+                            onChange={(e) => setEditCheck1(e.target.checked)}
+                            className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mr-3"
+                          />
+                          <div>
+                            <p className="text-sm font-bold text-slate-700">1. 1분 이상 체류</p>
+                            <p className="text-xs text-slate-400">포스팅 내용을 끝까지 꼼꼼히 정독했습니다.</p>
+                          </div>
+                        </label>
+
+                        {/* Check 2 */}
+                        <label className={`flex items-center p-4 rounded-xl border cursor-pointer transition ${
+                          editCheck2 ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 hover:bg-slate-50'
+                        }`}>
+                          <input 
+                            type="checkbox"
+                            checked={editCheck2}
+                            onChange={(e) => setEditCheck2(e.target.checked)}
+                            className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mr-3"
+                          />
+                          <div>
+                            <p className="text-sm font-bold text-slate-700">2. 서로이웃 추가 (서이추)</p>
+                            <p className="text-xs text-slate-400">상대방과 이웃 또는 서로이웃을 맺었습니다.</p>
+                          </div>
+                        </label>
+
+                        {/* Check 3 */}
+                        <label className={`flex items-center p-4 rounded-xl border cursor-pointer transition ${
+                          editCheck3 ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 hover:bg-slate-50'
+                        }`}>
+                          <input 
+                            type="checkbox"
+                            checked={editCheck3}
+                            onChange={(e) => setEditCheck3(e.target.checked)}
+                            className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mr-3"
+                          />
+                          <div>
+                            <p className="text-sm font-bold text-slate-700">3. 좋아요(공감) 클릭</p>
+                            <p className="text-xs text-slate-400">게시글 하단의 공감 하트를 꾹 눌렀습니다.</p>
+                          </div>
+                        </label>
+
+                        {/* Check 4 */}
+                        <label className={`flex items-center p-4 rounded-xl border cursor-pointer transition ${
+                          editCheck4 ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200 hover:bg-slate-50'
+                        }`}>
+                          <input 
+                            type="checkbox"
+                            checked={editCheck4}
+                            onChange={(e) => setEditCheck4(e.target.checked)}
+                            className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mr-3"
+                          />
+                          <div>
+                            <p className="text-sm font-bold text-slate-700">4. 비밀댓글 작성</p>
+                            <p className="text-xs text-slate-400">정성 어린 피드백과 함께 비밀댓글을 달았습니다.</p>
+                          </div>
+                        </label>
+
+                      </div>
+                    </div>
+
+                    <hr className="border-slate-100" />
+
+                    {/* Submit Button Section */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                      <div className="text-xs text-slate-400">
+                        <p>💡 <b>성공 요건:</b> 블로그 주소를 올바르게 입력하고 4가지 체크박스를 모두 완료해야 &apos;성공&apos; 처리됩니다.</p>
+                      </div>
+                      
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <button 
+                          onClick={handleSaveMission}
+                          className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl transition shadow-lg shadow-emerald-600/10"
+                        >
+                          미션 저장 및 완료하기
+                        </button>
+                      </div>
+                    </div>
+
+                    {saveSuccessMsg && (
+                      <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-sm text-center font-medium">
+                        {saveSuccessMsg}
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+
+                {/* Info about other locked weeks */}
+                <div className="mt-4 bg-amber-50 rounded-xl p-4 border border-amber-100 text-xs text-amber-800 leading-relaxed flex gap-2">
+                  <Lock size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">주차별 미션 수정 관련 주의사항</p>
+                    <p className="mt-0.5">현재 설정된 주간은 <b>{activeWeek}주차</b>입니다. 다른 주차의 데이터는 관리자가 전체 설정을 변경하기 전까지는 마음대로 수정하실 수 없습니다. 수정이 부득이하게 필요한 경우, 담임 선생님께 요청해주시기 바랍니다.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* =========================================
+            3. TOTAL ADMIN PANEL: MANAGE & MONITOR 54 USERS
+           ========================================= */}
+        {isAdmin && (
+          <div className="space-y-8">
+            
+            {/* Admin Stats Overview Section */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">총 챌린저</p>
+                  <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.totalCount}명</h3>
+                  <p className="text-slate-500 text-[11px] mt-0.5">주니어 {stats.totalJunior}명 / 시니어 {stats.totalSenior}명</p>
+                </div>
+                <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                  <Users size={24} />
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{activeWeek}주차 성공자</p>
+                  <h3 className="text-2xl font-bold text-emerald-600 mt-1">{stats.currentWeekSuccessCount}명</h3>
+                  <p className="text-slate-500 text-[11px] mt-0.5">진행중 {stats.currentWeekProgressCount}명 / 미제출 {stats.currentWeekFailedCount}명</p>
+                </div>
+                <div className="h-12 w-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                  <CheckCircle size={24} />
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{activeWeek}주차 성공률</p>
+                  <h3 className="text-2xl font-bold text-slate-800 mt-1">
+                    {Math.round((stats.currentWeekSuccessCount / stats.totalCount) * 100)}%
+                  </h3>
+                  <div className="w-24 bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full rounded-full" 
+                      style={{ width: `${(stats.currentWeekSuccessCount / stats.totalCount) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="h-12 w-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                  <TrendingUp size={24} />
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1.5">현재 활성 주차 변경</p>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((w) => (
+                    <button
+                      key={w}
+                      onClick={() => setActiveWeek(w)}
+                      className={`flex-1 h-9 rounded-lg font-bold text-xs transition ${
+                        activeWeek === w 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {w}주
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1.5 text-center">선택한 주차만 사용자들이 실시간 제출/수정 가능</p>
+              </div>
+
+            </div>
+
+            {/* Admin Action Tabs Header */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex space-x-1">
+                  <button 
+                    onClick={() => setAdminTab('dashboard')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                      adminTab === 'dashboard' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    📊 5주차 전체 달성 현황판
+                  </button>
+                  <button 
+                    onClick={() => setAdminTab('copy')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                      adminTab === 'copy' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    🔗 주차별 첫번째 미션 링크 한번에 모으기
+                  </button>
+                </div>
+                
+                <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <Info size={12} />
+                  각 셀의 동그라미 아이콘을 클릭하여 관리자가 수동으로 체크를 조정해줄 수 있습니다.
+                </span>
+              </div>
+
+              {/* TAB 1: DASHBOARD & GRID PERFORMANCE */}
+              {adminTab === 'dashboard' && (
+                <div className="p-6">
+                  
+                  {/* Filters & Search section */}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div className="relative flex-1 max-w-md">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <Search size={16} />
+                      </span>
+                      <input 
+                        type="text"
+                        placeholder="이름 또는 휴대폰 번호 검색..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Role filter */}
+                      <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl">
+                        <button 
+                          onClick={() => setRoleFilter('All')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${roleFilter === 'All' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          전체 클래스 ({stats.totalCount}명)
+                        </button>
+                        <button 
+                          onClick={() => setRoleFilter('Junior')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${roleFilter === 'Junior' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          주니어 ({stats.totalJunior}명)
+                        </button>
+                        <button 
+                          onClick={() => setRoleFilter('Senior')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${roleFilter === 'Senior' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          시니어 ({stats.totalSenior}명)
+                        </button>
+                      </div>
+
+                      {/* Status Filter */}
+                      <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl">
+                        <span className="text-[10px] text-slate-400 font-bold px-2 uppercase">현재 {activeWeek}W 상태 필터:</span>
+                        <button 
+                          onClick={() => setStatusFilter('All')}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-semibold ${statusFilter === 'All' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          전체
+                        </button>
+                        <button 
+                          onClick={() => setStatusFilter('Success')}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-semibold ${statusFilter === 'Success' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          성공
+                        </button>
+                        <button 
+                          onClick={() => setStatusFilter('Ongoing')}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-semibold ${statusFilter === 'Ongoing' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          작성중
+                        </button>
+                        <button 
+                          onClick={() => setStatusFilter('Failed')}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-semibold ${statusFilter === 'Failed' ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          미달성
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* MASTER PERFORMANCE TABLE */}
+                  <div className="overflow-x-auto border border-slate-150 rounded-xl">
+                    <table className="min-w-full divide-y divide-slate-200 text-left">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th scope="col" className="px-4 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">이름</th>
+                          <th scope="col" className="px-4 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">클래스</th>
+                          <th scope="col" className="px-4 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">연락처</th>
+                          {[1, 2, 3, 4, 5].map(w => (
+                            <th key={w} scope="col" className="px-4 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">
+                              {w}주차 {w === activeWeek && <span className="bg-emerald-600 text-white text-[9px] px-1 py-0.5 rounded ml-0.5">Active</span>}
+                            </th>
+                          ))}
+                          <th scope="col" className="px-4 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center bg-slate-100">누적 성공률</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-slate-200 text-xs">
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.map((u) => {
+                            const successWeeksCount = getSuccessWeekCount(u);
+                            return (
+                              <tr key={u.id} className="hover:bg-slate-50/50">
+                                <td className="px-4 py-3 font-bold text-slate-800">{u.name}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                    u.role === 'Junior' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+                                  }`}>
+                                    {u.role === 'Junior' ? '주니어' : '시니어'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-slate-400 font-mono">{u.phone}</td>
+                                
+                                {/* 1~5 주차 미션 결과 마크 업 */}
+                                {[1, 2, 3, 4, 5].map((w) => {
+                                  const sub = u.submissions[w];
+                                  const isSuccess = isMissionSuccess(sub);
+                                  const isInProgress = isMissionInProgress(sub);
+                                  
+                                  const handleToggleAll = () => {
+                                    const nextState = !isSuccess;
+                                    handleAdminOverride(u.id, w, 'url', nextState ? 'https://blog.naver.com/manual_entry' : '');
+                                    handleAdminOverride(u.id, w, 'check1', nextState);
+                                    handleAdminOverride(u.id, w, 'check2', nextState);
+                                    handleAdminOverride(u.id, w, 'check3', nextState);
+                                    handleAdminOverride(u.id, w, 'check4', nextState);
+                                  };
+
+                                  return (
+                                    <td key={w} className="px-4 py-3 text-center">
+                                      <div className="flex flex-col items-center justify-center space-y-1">
+                                        
+                                        {/* Status Icon */}
+                                        <button 
+                                          onClick={handleToggleAll}
+                                          title="수동 원클릭 (성공 ↔ 취소) 변경"
+                                          className={`focus:outline-none p-1 rounded-full transition ${
+                                            isSuccess 
+                                              ? 'text-emerald-600 hover:bg-emerald-50' 
+                                              : isInProgress 
+                                                ? 'text-amber-500 hover:bg-amber-50' 
+                                                : 'text-slate-300 hover:bg-slate-50'
+                                          }`}
+                                        >
+                                          {isSuccess ? <CheckCircle size={20} /> : isInProgress ? <Clock size={20} /> : <XCircle size={18} />}
+                                        </button>
+
+                                        {/* Popover detailed badges */}
+                                        {sub.url && (
+                                          <a 
+                                            href={sub.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="text-[9px] text-blue-500 underline truncate max-w-[80px]"
+                                            title={sub.url}
+                                          >
+                                            링크보기
+                                          </a>
+                                        )}
+                                        
+                                        {/* Detailed checkboxes list preview */}
+                                        <div className="flex gap-0.5 text-[8px] font-mono">
+                                          <span 
+                                            onClick={() => handleAdminOverride(u.id, w, 'check1', !sub.check1)}
+                                            className={`cursor-pointer px-1 rounded ${sub.check1 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-300'}`}
+                                            title="1분체류 여부"
+                                          >
+                                            1
+                                          </span>
+                                          <span 
+                                            onClick={() => handleAdminOverride(u.id, w, 'check2', !sub.check2)}
+                                            className={`cursor-pointer px-1 rounded ${sub.check2 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-300'}`}
+                                            title="서이추 여부"
+                                          >
+                                            2
+                                          </span>
+                                          <span 
+                                            onClick={() => handleAdminOverride(u.id, w, 'check3', !sub.check3)}
+                                            className={`cursor-pointer px-1 rounded ${sub.check3 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-300'}`}
+                                            title="좋아요 공감"
+                                          >
+                                            3
+                                          </span>
+                                          <span 
+                                            onClick={() => handleAdminOverride(u.id, w, 'check4', !sub.check4)}
+                                            className={`cursor-pointer px-1 rounded ${sub.check4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-300'}`}
+                                            title="비밀댓글 작성"
+                                          >
+                                            4
+                                          </span>
+                                        </div>
+
+                                      </div>
+                                    </td>
+                                  );
+                                })}
+
+                                {/* Cumulative rating */}
+                                <td className="px-4 py-3 text-center bg-slate-50">
+                                  <div className="flex flex-col items-center">
+                                    <span className={`px-2 py-1 rounded-lg font-bold text-xs ${
+                                      successWeeksCount === 5 ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600'
+                                    }`}>
+                                      {successWeeksCount}주 완료 / 5주
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 mt-0.5">성공률 {Math.round((successWeeksCount / 5) * 100)}%</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan="9" className="text-center py-8 text-slate-400">검색 조건과 일치하는 참여자가 없습니다.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              )}
+
+              {/* TAB 2: LINK COPIER */}
+              {adminTab === 'copy' && (
+                <div className="p-6 max-w-4xl mx-auto space-y-6">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">주차별 첫번째 미션(글쓰기 블로그 주소) 일괄 수집기</h4>
+                      <p className="text-xs text-slate-400 mt-1">블챌 단체 메신저나 공지사항에 공유하기 좋은 형식으로 미션 링크들이 이쁘게 리스트업 됩니다.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-slate-500">주차 선택:</span>
+                      <select 
+                        value={copySelectedWeek} 
+                        onChange={(e) => setCopySelectedWeek(parseInt(e.target.value))}
+                        className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700"
+                      >
+                        {[1, 2, 3, 4, 5].map(w => (
+                          <option key={w} value={w}>{w}주차 미션</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <pre className="bg-slate-900 text-emerald-400 p-6 rounded-2xl text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[400px]">
+                      {generateLinkBundleText(copySelectedWeek)}
+                    </pre>
+
+                    <button 
+                      onClick={() => handleCopyToClipboard(generateLinkBundleText(copySelectedWeek))}
+                      className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition active:scale-95"
+                    >
+                      {copiedNotification ? (
+                        <>
+                          <Check size={14} className="text-emerald-400" />
+                          <span className="text-emerald-400">복사 완료!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} />
+                          <span>모음글 전체 복사</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-xl text-xs text-slate-500 space-y-1">
+                    <p className="font-semibold text-slate-700">📌 설명서</p>
+                    <p>• 이 기능은 블로그 챌린지 1단계인 &quot;첫 번째 글쓰기 미션(블로그 링크)&quot;만 쏙 뽑아 모아줍니다.</p>
+                    <p>• 주차를 변경하면 실시간으로 해당 주차에 글을 등록한 사람들이 즉각 동기화되어 텍스트가 바뀝니다.</p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+          </div>
+        )}
+
+      </main>
+
+      {/* --- FOOTER --- */}
+      <footer className="mt-16 border-t border-slate-200 bg-white py-8 text-slate-400 text-xs">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
+          <p className="font-semibold text-slate-500">블챌 (Blog Challenge) 5주차 미션 매니저 시스템</p>
+          <p>모의 데이터로 탑재된 54명(주니어 27명, 시니어 27명)의 명단과 누적 5주간의 성공 결과를 한눈에 제어할 수 있습니다.</p>
+          <p>© 2026 Blog Challenge Hub. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  );
+}
