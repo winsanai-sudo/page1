@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚀 네오 블챌 5주 코스 워프 매니저</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts (Space Grotesk & Noto Sans KR) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti Library for Stunning Fireworks -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    }
+    .font-futuristic {
+      font-family: 'Space Grotesk', 'Noto Sans KR', sans-serif;
+    }
+    /* Space Background Canvas style */
+    #space-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      pointer-events: none;
+    }
+    /* Futuristic Neon Glow Effect */
+    .glow-emerald {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
+      border: 1px solid rgba(6, 182, 212, 0.5);
+    }
+    /* Glowing scrollbar for ultra modern feel */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 999px;
+    }
+    /* Glassmorphism panel base */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .cyber-dropdown-item {
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    /* Junior dynamic hover laser and neon flash */
+    .jr-dropdown-item:hover {
+      background-color: rgba(16, 185, 129, 0.15) !important;
+      border-color: rgba(16, 185, 129, 0.6) !important;
+      color: #34d399 !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+      transform: scale(1.02);
+      text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+    /* Senior dynamic hover laser and neon flash */
+    .sr-dropdown-item:hover {
+      background-color: rgba(6, 182, 212, 0.15) !important;
+      border-color: rgba(6, 182, 212, 0.6) !important;
+      color: #22d3ee !important;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
+      transform: scale(1.02);
+      text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+    }
+    /* Laser reflection sweep beam effect */
+    .cyber-dropdown-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: skewX(-25deg);
+      pointer-events: none;
+    }
+    .cyber-dropdown-item:hover::before {
+      animation: laser-sweep 0.75s ease-out;
+    }
+    @keyframes laser-sweep {
+      0% { left: -150%; }
+      100% { left: 150%; }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 antialiased overflow-x-hidden">
+
+  <canvas id="space-canvas"></canvas>
+
+  <!-- --- NEO TOAST BANNER --- -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-500 pointer-events-none">
+    <div id="toast-box" class="glass-panel text-emerald-400 px-6 py-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center gap-3 border border-emerald-500/30">
+      <div class="p-1 bg-emerald-500/20 rounded-lg">
+        <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400"></i>
+      </div>
+      <span id="toast-message" class="text-sm font-bold tracking-tight">알림 메시지</span>
+    </div>
+  </div>
+
+  <!-- --- 27TH CENTURY CELEBRATION MODAL OVERLAY --- -->
+  <div id="celebration-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-2xl hidden opacity-0 transition-all duration-500 scale-95 pointer-events-none">
+    <div class="relative max-w-lg w-full glass-panel border-2 border-cyan-500/40 rounded-3xl p-8 text-center shadow-[0_0_60px_rgba(6,182,212,0.3)] overflow-hidden">
+      <!-- Cyber background decoration -->
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- Crown / Star Neon Icon -->
+      <div class="relative mx-auto w-24 h-24 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)] mb-6 animate-pulse">
+        <i data-lucide="crown" class="w-12 h-12 text-slate-950 stroke-[2.5]"></i>
+      </div>
+
+      <!-- Success Typography -->
+      <span class="px-3.5 py-1.5 rounded-full text-xs font-black tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase font-futuristic">
+        Mission Mastered
+      </span>
+      
+      <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300 mt-4 leading-tight">
+        <span id="celebration-user-name" class="text-white underline decoration-cyan-400 decoration-wavy">김민준</span>님,<br/>
+        <span id="celebration-week-num" class="text-yellow-300">2주차</span> 미션 정복 완료!
+      </h2>
+      
+      <p class="text-slate-300 text-sm mt-4 leading-relaxed max-w-md mx-auto">
+        🪐 은하계급 정성과 압도적 성실함으로 이번 미션을 무사히 돌파하셨습니다! 축하합니다. 함께 더 높은 궤도로 워프해 보아요!
+      </p>
+
+      <!-- Cool dismiss button -->
+      <button 
+        onclick="closeCelebrationModal()"
+        class="mt-8 px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black rounded-xl text-sm transition-all duration-300 transform active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] cursor-pointer"
+      >
+        🛰️ 차원 워프 계속하기
+      </button>
+    </div>
+  </div>
+
+  <!-- --- HEADER NAVIGATION --- -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-[10px] sm:text-xs font-futuristic tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+          BLOG_CHALLENGE
+        </span>
+        <h1 class="text-base font-black tracking-tight sm:text-2xl font-futuristic bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent flex items-center gap-1.5">
+          초강스 블로그 <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent font-extrabold drop-shadow-[0_0_15px_rgba(16,185,129,0.6)] border-b-2 border-emerald-500/50 pb-0.5">초블</span>
+        </h1>
+      </div>
+      
+      <div id="user-header-status" class="flex items-center space-x-4">
+        <!-- Dyn. generated -->
+      </div>
+    </div>
+  </header>
+
+  <!-- --- MAIN WORKSPACE CONTAINER --- -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
+    
+    <!-- Background grid decoration -->
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none -z-10"></div>
+
+    <!-- =========================================
+        1. GATEWAY VIEW: CYBERPUNK LOGIN & MISSION RULES
+       ========================================= -->
+    <section id="login-view" class="max-w-4xl mx-auto my-6 grid md:grid-cols-2 gap-8 rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+      
+      <!-- Left Column: Beautified Rules (Neon Matrix style) -->
+      <div class="p-8 bg-gradient-to-br from-slate-950 to-slate-900 border-r border-white/5 flex flex-col justify-between relative">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div>
+          <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-black px-3 py-1 rounded-full text-[10px] tracking-widest font-futuristic">
+            MISSION PROTOCOL
+          </span>
+          <h2 class="text-3xl font-black mt-4 mb-6 leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+            블로그 챌린지<br/>실시간 워프 가이드
+          </h2>
+          
+          <div class="space-y-4">
+            
+            <!-- Mission 1 Card -->
+            <div class="glass-panel p-5 rounded-2xl hover:border-emerald-500/30 transition-all duration-300">
+              <div class="flex items-start space-x-3.5">
+                <div class="p-2 bg-emerald-500/10 rounded-xl text-emerald-400">
+                  <i data-lucide="book-open" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-100 text-sm">✍️ 미션 1 : 글쓰기 프로토콜</h4>
+                  <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+                    본인의 네이버 블로그에 소중히 가꾼 포스팅을 완료하고, 그 게시글의 원본 URL 링크를 붙여넣어 주세요.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mission 2 Card -->
+            <div class="glass-panel p-5 rounded-2xl hover:border-cyan-500/30 transition-all duration-300">
+              <div class="flex items-start space-x-3.5">
+                <div class="p-2 bg-cyan-500/10 rounded-xl text-cyan-400">
+                  <i data-lucide="message-square" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-100 text-sm">💬 미션 2 : 소통 및 동기화 프로토콜</h4>
+                  <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+                    상대방 블로그에 접속하여 진심 가득한 소통을 나누고, 아래의 필수 검증 4개 영역을 모두 점검 완료하세요.
+                  </p>
+                  
+                  <div class="grid grid-cols-2 gap-2 mt-3.5 text-[11px] font-semibold">
+                    <span class="bg-slate-900/90 border border-white/5 rounded-lg p-2 text-slate-300 flex items-center justify-center gap-1.5">⏳ 1분이상 체류</span>
+                    <span class="bg-slate-900/90 border border-white/5 rounded-lg p-2 text-slate-300 flex items-center justify-center gap-1.5">🤝 서로이웃 추가</span>
+                    <span class="bg-slate-900/90 border border-white/5 rounded-lg p-2 text-slate-300 flex items-center justify-center gap-1.5">❤️ 좋아요 클릭</span>
+                    <span class="bg-slate-900/90 border border-white/5 rounded-lg p-2 text-slate-300 flex items-center justify-center gap-1.5">🔒 비밀댓글 작성</span>
+                  </div>
+                  <p class="text-yellow-400/90 text-[10px] mt-3 font-semibold flex items-center gap-1">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                    4가지 하위 요건이 모두 통과되어야 최종 "성공" 판정을 받습니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <!-- Metrics stats -->
+        <div class="mt-6 pt-5 border-t border-white/5">
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400">현재 등록 궤도원</p>
+              <p id="roster-stat-total" class="text-base font-black text-emerald-400 font-futuristic mt-0.5">0명</p>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400">주니어/시니어</p>
+              <p id="roster-stat-ratio" class="text-xs font-bold text-slate-200 mt-1">0 / 0</p>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400">미션 주간</p>
+              <p class="text-base font-bold text-cyan-400 font-futuristic mt-0.5">5주간</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Registration & Access Forms -->
+      <div class="p-8 bg-slate-900/50 backdrop-blur-xl flex flex-col justify-center">
+        <h3 class="text-2xl font-black text-white font-futuristic tracking-tight">WARP_ACCESS_PORTAL</h3>
+        <p class="text-xs text-slate-400 mt-1 mb-6">최초 로그인 시 별도 인증 없이 신규 궤도로 즉시 자동 등록됩니다.</p>
+        
+        <form id="student-login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">이름 (Name)</label>
+            <div class="relative" id="name-input-container">
+              <!-- Custom dropdown replaces standard selects for hyper interactive hover effect -->
+              <input type="hidden" id="login-name" required value="" />
+              <div id="custom-select-trigger" onclick="toggleCustomDropdown()" class="w-full pl-10 pr-10 py-3 bg-slate-950 border border-white/10 rounded-xl text-sm text-slate-400 flex items-center justify-between cursor-pointer transition-all duration-300">
+                <span id="custom-select-label">여기를 눌러 이름을 고르세요</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+              </div>
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 pointer-events-none">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </span>
+              <!-- Custom scrollable drop menu -->
+              <div id="custom-dropdown-menu" class="hidden absolute left-0 right-0 mt-2 max-h-60 overflow-y-auto glass-panel border border-white/10 rounded-xl shadow-2xl z-50">
+                <!-- Dropdown items will be dynamically generated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">연락처 번호 (Phone)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 font-futuristic text-xs font-black">
+                010
+              </span>
+              <input 
+                id="login-phone"
+                type="tel"
+                placeholder="- 제외 뒷번호 8자리 입력 (예: 12345001)"
+                class="w-full pl-12 pr-4 py-3 bg-slate-950 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white transition-all duration-300"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Futuristic MZ Segmented Class selector -->
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">접속 클래스 지정 (Role Selection)</label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button 
+                type="button"
+                id="btn-role-select-junior"
+                onclick="selectLoginRole('Junior')"
+                class="py-3 px-4 rounded-xl border border-white/5 bg-slate-950 hover:bg-slate-900 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5 text-slate-400 active:scale-95 cursor-pointer"
+              >
+                👶 JUNIOR (주니어)
+              </button>
+              <button 
+                type="button"
+                id="btn-role-select-senior"
+                onclick="selectLoginRole('Senior')"
+                class="py-3 px-4 rounded-xl border border-white/5 bg-slate-950 hover:bg-slate-900 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5 text-slate-400 active:scale-95 cursor-pointer"
+              >
+                👑 SENIOR (시니어)
+              </button>
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition-all duration-300 cursor-pointer transform active:scale-[0.98]"
+          >
+            미션 기지 자동등록 및 워프 개시 🚀
+          </button>
+        </form>
+
+        <div class="relative flex py-5 items-center">
+          <div class="flex-grow border-t border-white/5"></div>
+          <span class="flex-shrink mx-4 text-slate-500 text-xs font-futuristic font-bold">OR</span>
+          <div class="flex-grow border-t border-white/5"></div>
+        </div>
+
+        <!-- Admin Entry -->
+        <form id="admin-login-form" class="space-y-3">
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-white/5">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">MASTER_CONTROL (선생님 권한)</label>
+            <div class="flex gap-2">
+              <input 
+                id="login-admin-pw"
+                type="password"
+                placeholder="보안 비밀번호 입력"
+                class="flex-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white transition"
+              />
+              <button 
+                type="submit"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-white text-xs font-bold rounded-xl border border-emerald-500/20 transition-all duration-300 cursor-pointer"
+              >
+                권한획득
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Error Notification -->
+        <div id="login-error-container" class="hidden mt-4 p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl flex items-center gap-2">
+          <i data-lucide="alert-octagon" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="login-error-text">통신 이상 발생</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================
+        2. STUDENT WORKSPACE VIEW
+       ========================================= -->
+    <section id="student-view" class="hidden space-y-8">
+      
+      <!-- Student Banner Glass card -->
+      <div class="glass-panel rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <!-- Pulse decoration -->
+        <div class="absolute -right-10 top-0 w-36 h-36 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center space-x-4">
+          <div id="student-avatar" class="h-16 w-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 text-slate-950 flex items-center justify-center font-black text-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+            GA
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="student-name-display" class="text-2xl font-black text-white">이름</h3>
+              <span id="student-role-display" class="px-2.5 py-1 rounded-lg text-xs font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase tracking-wider font-futuristic">
+                클래스
+              </span>
+            </div>
+            <p id="student-info-display" class="text-slate-400 text-xs sm:text-sm mt-1">로딩 중...</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/60 px-5 py-3 rounded-2xl border border-white/5 text-xs sm:text-sm flex items-center gap-3 self-start md:self-auto">
+          <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+          <span>현 운영 타겟 주차: <b id="student-active-week-display" class="text-emerald-400 font-extrabold font-futuristic text-base">2W</b></span>
+        </div>
+      </div>
+
+      <!-- Main Columns Grid -->
+      <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Left Side Cards: Weeks 1-5 -->
+        <div class="lg:col-span-1 space-y-4">
+          <h4 class="font-black text-white text-lg font-futuristic tracking-tight flex items-center gap-2">
+            <i data-lucide="workflow" class="text-emerald-400"></i>
+            <span>MY_PROGRESS_MATRIX</span>
+          </h4>
+          
+          <div id="student-week-cards" class="space-y-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Right Side: Active Week Input Workspace Form -->
+        <div class="lg:col-span-2">
+          <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl relative">
+            
+            <!-- Glow Accent line -->
+            <div class="h-1.5 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 w-full"></div>
+
+            <div class="bg-slate-950/40 p-6 border-b border-white/5 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-black px-2.5 py-1 rounded-md uppercase font-futuristic">
+                  EDITABLE PROTOCOL
+                </span>
+                <h3 id="form-week-title" class="text-xl font-black text-white mt-2 font-futuristic">2W 미션 작성 영역</h3>
+              </div>
+              <div class="flex items-center gap-1.5 text-slate-300 text-xs font-bold">
+                <i data-lucide="unlocked" class="text-emerald-400 w-4 h-4 animate-bounce"></i>
+                <span class="text-emerald-400">수정 동기화 모드</span>
+              </div>
+            </div>
+
+            <!-- Form Content inside Glass card -->
+            <div class="p-6 space-y-6">
+              
+              <!-- Mission 1: URL -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <label class="text-sm font-black text-slate-200 flex items-center gap-2">
+                    <i data-lucide="satellite" class="text-cyan-400 w-4.5 h-4.5"></i>
+                    <span>미션 1: 본인 블로그 포스팅 원본 주소 (URL)</span>
+                  </label>
+                  <span class="text-[10px] text-cyan-400 font-extrabold font-futuristic tracking-wider">CRITICAL *</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  포스팅한 글의 원본 브라우저 주소를 복사해 올바르게 적어주세요. 짝꿍들이 접속할 좌표가 됩니다.
+                </p>
+                <input 
+                  id="student-url-input"
+                  type="url"
+                  placeholder="https://blog.naver.com/아이디/글번호"
+                  class="w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white transition-all duration-300"
+                />
+              </div>
+
+              <hr class="border-white/5" />
+
+              <!-- Mission 2: Checkboxes -->
+              <div class="space-y-4">
+                <label class="text-sm font-black text-slate-200 flex items-center gap-2">
+                  <i data-lucide="checkbox" class="text-emerald-400 w-4.5 h-4.5"></i>
+                  <span>미션 2: 짝꿍 방문 및 소통 이행 4-Check</span>
+                </label>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  할당받은 동료 챌린저의 블로그를 심층 방문하여 아래의 항목들을 신의성실하게 완수하였는지 자체 체크해 주세요.
+                </p>
+
+                <div class="grid sm:grid-cols-2 gap-3.5">
+                  
+                  <!-- Check 1 -->
+                  <label id="lbl-check1" class="flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 relative group">
+                    <input 
+                      id="student-check1"
+                      type="checkbox"
+                      class="h-5 w-5 rounded border-white/20 bg-slate-950 text-emerald-500 focus:ring-emerald-500 mr-3 cursor-pointer"
+                    />
+                    <div>
+                      <p class="text-xs sm:text-sm font-black text-slate-200">1. 포스팅 1분 이상 정독</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">글의 가치를 읽고 충분히 체류했습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 2 -->
+                  <label id="lbl-check2" class="flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 relative group">
+                    <input 
+                      id="student-check2"
+                      type="checkbox"
+                      class="h-5 w-5 rounded border-white/20 bg-slate-950 text-emerald-500 focus:ring-emerald-500 mr-3 cursor-pointer"
+                    />
+                    <div>
+                      <p class="text-xs sm:text-sm font-black text-slate-200">2. 서로이웃 추가 완료</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">서이추를 통해 정기 구독 인프라를 맺었습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 3 -->
+                  <label id="lbl-check3" class="flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 relative group">
+                    <input 
+                      id="student-check3"
+                      type="checkbox"
+                      class="h-5 w-5 rounded border-white/20 bg-slate-950 text-emerald-500 focus:ring-emerald-500 mr-3 cursor-pointer"
+                    />
+                    <div>
+                      <p class="text-xs sm:text-sm font-black text-slate-200">3. 공감/좋아요 터치</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">정성껏 작성한 글 하단에 하트를 남겼습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 4 -->
+                  <label id="lbl-check4" class="flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 relative group">
+                    <input 
+                      id="student-check4"
+                      type="checkbox"
+                      class="h-5 w-5 rounded border-white/20 bg-slate-950 text-emerald-500 focus:ring-emerald-500 mr-3 cursor-pointer"
+                    />
+                    <div>
+                      <p class="text-xs sm:text-sm font-black text-slate-200">4. 피드백 비밀댓글 작성</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">정성이 깃든 따뜻한 비밀 한마디를 적었습니다.</p>
+                    </div>
+                  </label>
+
+                </div>
+              </div>
+
+              <hr class="border-white/5" />
+
+              <!-- Save trigger -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                <div class="text-xs text-slate-400 max-w-sm">
+                  <p>🌟 두 가지 대단위 미션이 유효하게 검증되면 우주급 가동 축하 세레머니가 격렬하게 펼쳐집니다!</p>
+                </div>
+                
+                <button 
+                  id="save-mission-btn"
+                  type="button"
+                  class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black px-10 py-3.5 rounded-2xl transition-all duration-300 shadow-xl shadow-emerald-500/20 transform active:scale-95 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] cursor-pointer"
+                >
+                  미션 업로드 및 축하받기 🚀
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================
+        3. TOTAL ADMIN CONTROL PANEL VIEW
+       ========================================= -->
+    <section id="admin-view" class="hidden space-y-8">
+      
+      <!-- Stats grids cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="glass-panel p-5 rounded-3xl flex items-center justify-between relative overflow-hidden shadow-2xl">
+          <div class="absolute -right-5 -bottom-5 w-20 h-20 bg-blue-500/5 rounded-full blur-xl"></div>
+          <div>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">전체 도전자 현황</p>
+            <h3 id="admin-stat-total" class="text-3xl font-black text-white mt-1 font-futuristic">0명</h3>
+            <p id="admin-stat-ratio-summary" class="text-slate-500 text-[11px] mt-1 font-semibold">주니어 0명 / 시니어 0명</p>
+          </div>
+          <div class="h-12 w-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center">
+            <i data-lucide="users" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl flex items-center justify-between relative overflow-hidden shadow-2xl">
+          <div class="absolute -right-5 -bottom-5 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl"></div>
+          <div>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest"><span class="active-week-text">2주차</span> 달성자</p>
+            <h3 id="admin-stat-success" class="text-3xl font-black text-emerald-400 mt-1 font-futuristic">0명</h3>
+            <p id="admin-stat-progress-summary" class="text-slate-500 text-[11px] mt-1 font-semibold">작성중 0명 / 미달 0명</p>
+          </div>
+          <div class="h-12 w-12 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl flex items-center justify-between relative overflow-hidden shadow-2xl">
+          <div class="absolute -right-5 -bottom-5 w-20 h-20 bg-cyan-500/5 rounded-full blur-xl"></div>
+          <div>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest"><span class="active-week-text">2주차</span> 평균 달성률</p>
+            <h3 id="admin-stat-percent" class="text-3xl font-black text-cyan-400 mt-1 font-futuristic">0%</h3>
+            <div class="w-24 bg-slate-950 h-2 rounded-full mt-2.5 overflow-hidden border border-white/5">
+              <div id="admin-stat-progress-bar" class="bg-cyan-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="h-12 w-12 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Master active week configurer -->
+        <div class="glass-panel p-5 rounded-3xl relative overflow-hidden shadow-2xl">
+          <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">통제 주차 워프 세팅</p>
+          <div class="flex items-center gap-1">
+            <button onclick="changeActiveWeek(1)" id="btn-week-1" class="flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition cursor-pointer">1W</button>
+            <button onclick="changeActiveWeek(2)" id="btn-week-2" class="flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition cursor-pointer">2W</button>
+            <button onclick="changeActiveWeek(3)" id="btn-week-3" class="flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition cursor-pointer">3W</button>
+            <button onclick="changeActiveWeek(4)" id="btn-week-4" class="flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition cursor-pointer">4W</button>
+            <button onclick="changeActiveWeek(5)" id="btn-week-5" class="flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition cursor-pointer">5W</button>
+          </div>
+          <p class="text-[9px] text-slate-500 mt-2 text-center">선택된 주차만 실시간 데이터 업로드/수정 개방</p>
+        </div>
+
+      </div>
+
+      <!-- Action Tab and Database Area -->
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl">
+        
+        <div class="border-b border-white/5 bg-slate-950/60 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex space-x-2">
+            <button 
+              id="tab-btn-dashboard"
+              onclick="setAdminTab('dashboard')"
+              class="px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer text-white"
+            >
+              📊 전체 미션 현황 매트릭스
+            </button>
+            <button 
+              id="tab-btn-copy"
+              onclick="setAdminTab('copy')"
+              class="px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer text-slate-400"
+            >
+              🔗 주차별 첫번째 미션 URL 일괄 추출기
+            </button>
+          </div>
+          
+          <span class="text-xs text-slate-500 flex items-center gap-1">
+            <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+            관리자는 각 사용자의 각 미션 항목을 실시간 수동 전환 제어할 수 있습니다.
+          </span>
+        </div>
+
+        <!-- TAB 1: MASTER MATRIX TABLE -->
+        <div id="admin-tab-dashboard" class="p-6">
+          
+          <!-- Filter search toolbar -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+            <div class="relative flex-1 max-w-md">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </span>
+              <input 
+                id="admin-search-input"
+                type="text"
+                placeholder="도전자 성함 혹은 휴대전화 필터링..."
+                oninput="handleAdminSearch(this.value)"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            <!-- MZ Dropdown role filters -->
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="flex items-center space-x-1.5 bg-slate-950/80 p-1.5 rounded-2xl border border-white/5">
+                <button onclick="setRoleFilter('All')" id="filter-role-all" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">전체</button>
+                <button onclick="setRoleFilter('Junior')" id="filter-role-junior" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">주니어</button>
+                <button onclick="setRoleFilter('Senior')" id="filter-role-senior" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">시니어</button>
+              </div>
+
+              <div class="flex items-center space-x-1 bg-slate-950/80 p-1.5 rounded-2xl border border-white/5">
+                <span class="text-[10px] text-slate-500 font-bold px-2">진행필터:</span>
+                <button onclick="setStatusFilter('All')" id="filter-status-all" class="px-2 py-1 rounded-lg text-[11px] font-bold transition">전체</button>
+                <button onclick="setStatusFilter('Success')" id="filter-status-success" class="px-2 py-1 rounded-lg text-[11px] font-bold transition text-emerald-400">성공</button>
+                <button onclick="setStatusFilter('Ongoing')" id="filter-status-ongoing" class="px-2 py-1 rounded-lg text-[11px] font-bold transition text-amber-400">작성중</button>
+                <button onclick="setStatusFilter('Failed')" id="filter-status-failed" class="px-2 py-1 rounded-lg text-[11px] font-bold transition text-slate-500">미달</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile responsive layout note: table wrapper -->
+          <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1 sm:hidden">
+            <i data-lucide="chevrons-left-right" class="w-3.5 h-3.5 animate-pulse text-cyan-400"></i>
+            <span>옆으로 밀면 나머지 5개 주차 현황과 누적 성공률을 볼 수 있습니다.</span>
+          </div>
+
+          <!-- TABLE WRAPPER -->
+          <div class="overflow-x-auto border border-white/5 rounded-2xl">
+            <table class="min-w-full divide-y divide-white/5 text-left">
+              <thead class="bg-slate-950/70">
+                <tr class="text-slate-400 text-xs">
+                  <th scope="col" class="px-4 py-4 font-black">이름</th>
+                  <th scope="col" class="px-4 py-4 font-black">클래스</th>
+                  <th scope="col" class="px-4 py-4 font-black">연락처</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center">1주차</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center">2주차</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center">3주차</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center">4주차</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center">5주차</th>
+                  <th scope="col" class="px-4 py-4 font-black text-center bg-white/5">누적 성공률</th>
+                </tr>
+              </thead>
+              <tbody id="admin-table-body" class="bg-transparent divide-y divide-white/5 text-xs text-slate-300">
+                <!-- Javascript will render rows dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: EXPORT COPIER -->
+        <div id="admin-tab-copy" class="p-6 max-w-4xl mx-auto space-y-6 hidden">
+          <div class="bg-slate-950/80 p-5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                <i data-lucide="cloud-lightning" class="text-yellow-400"></i>
+                <span>주차별 첫번째 미션 URL 일괄 변환기</span>
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">단체 메신저방 등에 바로 공유할 수 있는 포맷으로 자동 취합 갱신됩니다.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-400">주간 선택:</span>
+              <select 
+                id="copy-week-select" 
+                onchange="handleCopyWeekChange(this.value)"
+                class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none"
+              >
+                <option value="1">1주차 미션 데이터</option>
+                <option value="2" selected>2주차 미션 데이터</option>
+                <option value="3">3주차 미션 데이터</option>
+                <option value="4">4주차 미션 데이터</option>
+                <option value="5">5주차 미션 데이터</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Invisible holder area -->
+          <textarea id="copy-text-area" class="absolute w-0 h-0 opacity-0 pointer-events-none"></textarea>
+
+          <div class="relative">
+            <pre id="link-bundle-preview" class="bg-slate-950 text-emerald-400 p-6 rounded-2xl text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[400px] border border-white/5">
+              <!-- Content -->
+            </pre>
+
+            <button 
+              onclick="copyLinksToClipboard()"
+              class="absolute top-4 right-4 bg-emerald-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 hover:bg-emerald-400 transition cursor-pointer"
+            >
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span id="copy-btn-text">전체 일괄 클립보드 복사</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================================
+      JAVASCRIPT STATE & APPLICATION LOGIC
+     ========================================= -->
+  <script>
+    // --- LOAD DYNAMIC USERS FROM LOCALSTORAGE OR EMPTY INITIAL ---
+    const getStoredUsers = () => {
+      const stored = localStorage.getItem('neo_challenge_users');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error("로컬 스토리지 데이터 손상 발생, 초기화 진행", e);
+        }
+      }
+      
+      return [
+        {
+          id: "jr-demo-1",
+          name: "류용수",
+          phone: "010-1234-5678",
+          role: "Junior",
+          submissions: {
+            1: { url: "https://blog.naver.com/test_ryu/2234123456", check1: true, check2: true, check3: true, check4: true },
+            2: { url: "https://blog.naver.com/test_ryu/2234567890", check1: true, check2: true, check3: true, check4: false },
+            3: { url: "", check1: false, check2: false, check3: false, check4: false },
+            4: { url: "", check1: false, check2: false, check3: false, check4: false },
+            5: { url: "", check1: false, check2: false, check3: false, check4: false }
+          }
+        },
+        {
+          id: "sr-demo-1",
+          name: "김민준",
+          phone: "010-9876-5432",
+          role: "Senior",
+          submissions: {
+            1: { url: "https://blog.naver.com/test_kim/2234111222", check1: true, check2: true, check3: true, check4: true },
+            2: { url: "https://blog.naver.com/test_kim/2234222333", check1: true, check2: true, check3: true, check4: true },
+            3: { url: "", check1: false, check2: false, check3: false, check4: false },
+            4: { url: "", check1: false, check2: false, check3: false, check4: false },
+            5: { url: "", check1: false, check2: false, check3: false, check4: false }
+          }
+        }
+      ];
+    };
+
+    const saveUsersToStore = (users) => {
+      localStorage.setItem('neo_challenge_users', JSON.stringify(users));
+    };
+
+    // --- STATE MANAGER ---
+    let appState = {
+      users: getStoredUsers(),
+      activeWeek: 2,
+      currentUser: null,
+      isAdmin: false,
+      adminTab: 'dashboard',
+      selectedLoginRole: 'Junior', // Default role selection
+      filters: {
+        search: '',
+        role: 'All',
+        status: 'All'
+      }
+    };
+
+    // --- CHECK SUCCESS LOGIC ---
+    const isMissionSuccess = (sub) => {
+      return sub && sub.url && sub.url.trim() !== '' && sub.check1 && sub.check2 && sub.check3 && sub.check4;
+    };
+
+    const isMissionInProgress = (sub) => {
+      if (isMissionSuccess(sub)) return false;
+      return sub && ( (sub.url && sub.url.trim() !== '') || sub.check1 || sub.check2 || sub.check3 || sub.check4 );
+    };
+
+    const getSuccessWeekCount = (user) => {
+      let count = 0;
+      for (let w = 1; w <= 5; w++) {
+        if (isMissionSuccess(user.submissions[w])) count++;
+      }
+      return count;
+    };
+
+    // --- TOAST ALERTS ---
+    const showToast = (message) => {
+      const container = document.getElementById('toast-container');
+      const textSpan = document.getElementById('toast-message');
+      textSpan.textContent = message;
+      
+      container.classList.remove('opacity-0', 'translate-y-[-100px]');
+      container.classList.add('opacity-100', 'translate-y-0');
+      
+      setTimeout(() => {
+        container.classList.remove('opacity-100', 'translate-y-0');
+        container.classList.add('opacity-0', 'translate-y-[-100px]');
+      }, 3000);
+    };
+
+    // --- AMAZING FIREWORKS & CONFETTI CELEBRATION ---
+    const triggerCelebration = (userName, weekNum) => {
+      const container = document.getElementById('celebration-overlay');
+      const nameText = document.getElementById('celebration-user-name');
+      const weekText = document.getElementById('celebration-week-num');
+      
+      nameText.textContent = userName;
+      weekText.textContent = `${weekNum}주차`;
+      
+      container.classList.remove('hidden');
+      setTimeout(() => {
+        container.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        container.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+      }, 10);
+
+      // Hyper galactic cosmic confetti burst
+      const end = Date.now() + (2 * 1000);
+      const colors = ['#10b981', '#06b6d4', '#f59e0b', '#ec4899'];
+
+      (function frame() {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    };
+
+    const closeCelebrationModal = () => {
+      const container = document.getElementById('celebration-overlay');
+      container.classList.add('opacity-0', 'scale-95');
+      container.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+      setTimeout(() => {
+        container.classList.add('hidden');
+      }, 500);
+    };
+
+    const juniorNames = [
+      '상윤', '현선', '영유', '김종민', '은영', '은진', '윤정', '백화', '신선미', '보현', 
+      '원우', '윤선미', '이종민', '현주', '예희', '재근', '수아', '정원', '명화', '하나', 
+      '민종', '혜원', '혜빈', '도윤', '룡수'
+    ]; // Exactly 25 names
+
+    const seniorNames = [
+      '본식', '김민호', '보미', '소연', '원표', '식훈', '모리', '재웅', '장윤', '민하', 
+      '진성', '신영', '아영', '설지', '귀선', '은주', '기호', '동휘', '이민호', '세완', 
+      '영운', '인영', '해룡', '유진', '문수', '승빈', '룡수'
+    ]; // Exactly 27 names
+
+    const toggleCustomDropdown = () => {
+      const menu = document.getElementById('custom-dropdown-menu');
+      menu.classList.toggle('hidden');
+    };
+
+    const selectCustomName = (name) => {
+      const hiddenInput = document.getElementById('login-name');
+      const label = document.getElementById('custom-select-label');
+      const trigger = document.getElementById('custom-select-trigger');
+      const menu = document.getElementById('custom-dropdown-menu');
+
+      hiddenInput.value = name;
+      label.textContent = name;
+      label.className = "text-slate-100 font-bold";
+      trigger.className = `w-full pl-10 pr-10 py-3 bg-slate-950 border ${appState.selectedLoginRole === 'Junior' ? 'border-emerald-500/50 text-emerald-400' : 'border-cyan-500/50 text-cyan-400'} rounded-xl text-sm flex items-center justify-between cursor-pointer transition-all duration-300`;
+      menu.classList.add('hidden');
+    };
+
+    // Global document click event to close dropdown when clicked outside
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('name-input-container');
+      const menu = document.getElementById('custom-dropdown-menu');
+      if (container && !container.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    const selectLoginRole = (role) => {
+      appState.selectedLoginRole = role;
+      const btnJr = document.getElementById('btn-role-select-junior');
+      const btnSr = document.getElementById('btn-role-select-senior');
+      const trigger = document.getElementById('custom-select-trigger');
+      const label = document.getElementById('custom-select-label');
+      const hiddenInput = document.getElementById('login-name');
+      const dropdownMenu = document.getElementById('custom-dropdown-menu');
+      
+      // Reset currently chosen custom name on class switch
+      hiddenInput.value = "";
+      label.textContent = "여기를 눌러 이름을 고르세요";
+      label.className = "text-slate-400";
+      trigger.className = "w-full pl-10 pr-10 py-3 bg-slate-950 border border-white/10 rounded-xl text-sm text-slate-400 flex items-center justify-between cursor-pointer transition-all duration-300";
+
+      if (role === 'Junior') {
+        btnJr.className = "py-3 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all duration-300 flex items-center justify-center gap-1.5 text-emerald-400 active:scale-95 cursor-pointer";
+        btnSr.className = "py-3 px-4 rounded-xl border border-white/5 bg-slate-950 hover:bg-slate-900 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5 text-slate-400 active:scale-95 cursor-pointer";
+        
+        // Build items for Junior
+        dropdownMenu.innerHTML = juniorNames.map(name => `
+          <div 
+            onclick="selectCustomName('${name}')" 
+            class="cyber-dropdown-item jr-dropdown-item px-4 py-3 bg-slate-950/90 text-slate-300 hover:text-emerald-400 text-xs font-bold transition-all duration-200 cursor-pointer border-b border-white/5"
+          >
+            👶 Junior 궤도: <span class="text-white text-sm font-black inline-block ml-1">${name}</span>
+          </div>
+        `).join('');
+      } else {
+        btnJr.className = "py-3 px-4 rounded-xl border border-white/5 bg-slate-950 hover:bg-slate-900 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5 text-slate-400 active:scale-95 cursor-pointer";
+        btnSr.className = "py-3 px-4 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 text-xs font-black shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all duration-300 flex items-center justify-center gap-1.5 text-cyan-400 active:scale-95 cursor-pointer";
+        
+        // Build items for Senior
+        dropdownMenu.innerHTML = seniorNames.map(name => `
+          <div 
+            onclick="selectCustomName('${name}')" 
+            class="cyber-dropdown-item sr-dropdown-item px-4 py-3 bg-slate-950/90 text-slate-300 hover:text-cyan-400 text-xs font-bold transition-all duration-200 cursor-pointer border-b border-white/5"
+          >
+            👑 Senior 궤도: <span class="text-white text-sm font-black inline-block ml-1">${name}</span>
+          </div>
+        `).join('');
+      }
+      lucide.createIcons();
+    };
+
+    // --- GATEWAY LOGIN PROTOCOL & AUTOREGISTER ---
+    document.getElementById('student-login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errorContainer = document.getElementById('login-error-container');
+      errorContainer.classList.add('hidden');
+
+      const nameInput = document.getElementById('login-name').value.trim();
+      const phoneInput = document.getElementById('login-phone').value.trim();
+
+      if (!nameInput) {
+        setLoginError('드롭다운 목록을 터치하여 이름을 올바르게 골라주세요.');
+        return;
+      }
+      if (!phoneInput) {
+        setLoginError('연락처 번호를 바르게 입력해 주세요.');
+        return;
+      }
+
+      // Format input phone to keep it consistent
+      const normalizedPhone = phoneInput.replace(/[^0-9]/g, '');
+      const rawFormattedPhone = normalizedPhone.length === 8 
+        ? `010-${normalizedPhone.slice(0, 4)}-${normalizedPhone.slice(4)}`
+        : normalizedPhone;
+
+      // Find user
+      let foundUser = appState.users.find(u => {
+        const normUserPhone = u.phone.replace(/[^0-9]/g, '');
+        return normUserPhone === normalizedPhone && u.name === nameInput;
+      });
+
+      if (!foundUser) {
+        // --- AUTO-REGISTER PROTOCOL (No Verification barrier) ---
+        foundUser = {
+          id: `user-${Date.now()}`,
+          name: nameInput,
+          phone: rawFormattedPhone,
+          role: appState.selectedLoginRole,
+          submissions: {
+            1: { url: '', check1: false, check2: false, check3: false, check4: false },
+            2: { url: '', check1: false, check2: false, check3: false, check4: false },
+            3: { url: '', check1: false, check2: false, check3: false, check4: false },
+            4: { url: '', check1: false, check2: false, check3: false, check4: false },
+            5: { url: '', check1: false, check2: false, check3: false, check4: false }
+          }
+        };
+        appState.users.push(foundUser);
+        saveUsersToStore(appState.users);
+        showToast(`🛰️ 신규 ${appState.selectedLoginRole === 'Junior' ? '주니어' : '시니어'} 도전자 등록 완료!`);
+      }
+
+      appState.currentUser = foundUser;
+      appState.isAdmin = false;
+      showToast(`🛰️ ${foundUser.name} 님 대시보드 궤도 접속 완료.`);
+      transitionToView('student');
+    });
+
+    document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errorContainer = document.getElementById('login-error-container');
+      errorContainer.classList.add('hidden');
+
+      const adminPw = document.getElementById('login-admin-pw').value;
+
+      if (adminPw === 'akdldpa1946') {
+        appState.isAdmin = true;
+        appState.currentUser = null;
+        showToast('🔑 선생님 모드 기동 완료');
+        transitionToView('admin');
+      } else {
+        setLoginError('보안 토큰(비밀번호) 검증에 실패했습니다.');
+      }
+    });
+
+    const setLoginError = (msg) => {
+      const container = document.getElementById('login-error-container');
+      const text = document.getElementById('login-error-text');
+      text.textContent = msg;
+      container.classList.remove('hidden');
+    };
+
+    const handleLogout = () => {
+      appState.currentUser = null;
+      appState.isAdmin = false;
+      
+      document.getElementById('login-name').value = '';
+      document.getElementById('login-phone').value = '';
+      document.getElementById('login-admin-pw').value = '';
+      document.getElementById('login-error-container').classList.add('hidden');
+
+      showToast('통신 세션 연결 종료.');
+      transitionToView('login');
+    };
+
+    // --- ROUTER ENGINE ---
+    const transitionToView = (viewName) => {
+      const loginView = document.getElementById('login-view');
+      const studentView = document.getElementById('student-view');
+      const adminView = document.getElementById('admin-view');
+      
+      loginView.classList.add('hidden');
+      studentView.classList.add('hidden');
+      adminView.classList.add('hidden');
+
+      renderHeader();
+      updateMainStats();
+
+      if (viewName === 'login') {
+        loginView.classList.remove('hidden');
+      } else if (viewName === 'student') {
+        studentView.classList.remove('hidden');
+        initStudentForm();
+        renderStudentView();
+      } else if (viewName === 'admin') {
+        adminView.classList.remove('hidden');
+        renderAdminView();
+      }
+      lucide.createIcons();
+    };
+
+    const renderHeader = () => {
+      const headerStatus = document.getElementById('user-header-status');
+      headerStatus.innerHTML = '';
+
+      if (appState.currentUser) {
+        headerStatus.innerHTML = `
+          <div class="flex items-center space-x-3 text-xs sm:text-sm">
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-futuristic font-bold">
+              ${appState.currentUser.role === 'Junior' ? 'JR_CLASS' : 'SR_CLASS'}
+            </span>
+            <span class="font-extrabold text-slate-100">${appState.currentUser.name} 님</span>
+            <button onclick="handleLogout()" class="bg-slate-900 border border-white/5 hover:bg-slate-800 transition px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="log-out" class="w-3.5 h-3.5 text-rose-400"></i> 로그아웃
+            </button>
+          </div>
+        `;
+      } else if (appState.isAdmin) {
+        headerStatus.innerHTML = `
+          <div class="flex items-center space-x-3 text-xs sm:text-sm">
+            <span class="bg-yellow-400 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1">
+              <i data-lucide="sliders" class="w-3.5 h-3.5"></i> MASTER CONTROLLER
+            </span>
+            <button onclick="handleLogout()" class="bg-slate-900 border border-white/5 hover:bg-slate-800 transition px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="log-out" class="w-3.5 h-3.5 text-rose-400"></i> 관리 종료
+            </button>
+          </div>
+        `;
+      }
+    };
+
+    const updateMainStats = () => {
+      const total = appState.users.length;
+      const juniors = appState.users.filter(u => u.role === 'Junior').length;
+      const seniors = appState.users.filter(u => u.role === 'Senior').length;
+
+      document.getElementById('roster-stat-total').textContent = `${total}명`;
+      document.getElementById('roster-stat-ratio').textContent = `${juniors} / ${seniors}`;
+    };
+
+    // =========================================
+    // STUDENT WORKSPACE CONTROLLER
+    // =========================================
+    const initStudentForm = () => {
+      const user = appState.currentUser;
+      const sub = user.submissions[appState.activeWeek];
+
+      document.getElementById('student-url-input').value = sub.url || '';
+      document.getElementById('student-check1').checked = sub.check1 || false;
+      document.getElementById('student-check2').checked = sub.check2 || false;
+      document.getElementById('student-check3').checked = sub.check3 || false;
+      document.getElementById('student-check4').checked = sub.check4 || false;
+
+      updateCheckboxStyles();
+    };
+
+    const updateCheckboxStyles = () => {
+      for (let i = 1; i <= 4; i++) {
+        const cb = document.getElementById(`student-check${i}`);
+        const label = document.getElementById(`lbl-check${i}`);
+        if (cb.checked) {
+          label.className = "flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 border-emerald-500 bg-emerald-50/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]";
+        } else {
+          label.className = "flex items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 border-white/5 bg-slate-950/40 hover:bg-slate-900/40 hover:border-white/10";
+        }
+      }
+    };
+
+    [1, 2, 3, 4].forEach(i => {
+      document.getElementById(`student-check${i}`).addEventListener('change', updateCheckboxStyles);
+    });
+
+    // Save & Trigger dynamic celebration
+    document.getElementById('save-mission-btn').addEventListener('click', () => {
+      const user = appState.currentUser;
+      const urlVal = document.getElementById('student-url-input').value.trim();
+      const chk1 = document.getElementById('student-check1').checked;
+      const chk2 = document.getElementById('student-check2').checked;
+      const chk3 = document.getElementById('student-check3').checked;
+      const chk4 = document.getElementById('student-check4').checked;
+
+      const previouslyCompleted = isMissionSuccess(user.submissions[appState.activeWeek]);
+
+      appState.users = appState.users.map(u => {
+        if (u.id === user.id) {
+          return {
+            ...u,
+            submissions: {
+              ...u.submissions,
+              [appState.activeWeek]: {
+                url: urlVal,
+                check1: chk1,
+                check2: chk2,
+                check3: chk3,
+                check4: chk4
+              }
+            }
+          };
+        }
+        return u;
+      });
+
+      saveUsersToStore(appState.users);
+      appState.currentUser = appState.users.find(u => u.id === user.id);
+      
+      const newlyCompleted = isMissionSuccess(appState.currentUser.submissions[appState.activeWeek]);
+
+      showToast('🛰️ 데이터 동기화 완료! 위성 서버 전송 성공.');
+      renderStudentView();
+
+      if (!previouslyCompleted && newlyCompleted) {
+        triggerCelebration(user.name, appState.activeWeek);
+      }
+    });
+
+    const renderStudentView = () => {
+      const user = appState.currentUser;
+      
+      document.getElementById('student-avatar').textContent = user.name.slice(0, 2);
+      document.getElementById('student-name-display').textContent = user.name;
+      
+      const roleBadge = document.getElementById('student-role-display');
+      if (user.role === 'Junior') {
+        roleBadge.textContent = 'JUNIOR_CHALLENGER';
+        roleBadge.className = "px-3 py-1 rounded-lg text-[10px] font-black bg-blue-500/10 text-blue-400 border border-blue-500/20 tracking-wider font-futuristic";
+      } else {
+        roleBadge.textContent = 'SENIOR_CHALLENGER';
+        roleBadge.className = "px-3 py-1 rounded-lg text-[10px] font-black bg-purple-500/10 text-purple-400 border border-purple-500/20 tracking-wider font-futuristic";
+      }
+
+      document.getElementById('student-info-display').textContent = `연락처 식별코드: ${user.phone} | 현재까지 성실 미션 정복: ${getSuccessWeekCount(user)}개 주차`;
+      document.getElementById('student-active-week-display').textContent = `${appState.activeWeek}W`;
+      
+      document.querySelectorAll('.active-week-text').forEach(el => {
+        el.textContent = `${appState.activeWeek}주차`;
+      });
+      document.getElementById('form-week-title').textContent = `${appState.activeWeek}주차 미션 수행 및 제출 기지`;
+
+      const weekCardsContainer = document.getElementById('student-week-cards');
+      weekCardsContainer.innerHTML = '';
+
+      for (let w = 1; w <= 5; w++) {
+        const sub = user.submissions[w];
+        const isSuccess = isMissionSuccess(sub);
+        const isInProgress = isMissionInProgress(sub);
+        const isActive = w === appState.activeWeek;
+
+        let borderClass = isActive ? "border-cyan-500 bg-cyan-950/20 ring-1 ring-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]" : "border-white/5 bg-slate-900/50 hover:bg-slate-900 transition-all duration-300";
+        let statusBadge = '';
+
+        if (isSuccess) {
+          statusBadge = `
+            <div class="flex flex-col items-end gap-1.5">
+              <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black px-3 py-1 rounded-xl flex items-center gap-1">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>성공
+              </span>
+              <button 
+                onclick="triggerCelebration('${user.name}', ${w})" 
+                class="text-[9px] font-bold text-yellow-400 hover:underline cursor-pointer flex items-center gap-0.5"
+              >
+                🚀 축하 재생
+              </button>
+            </div>
+          `;
+        } else if (isInProgress) {
+          statusBadge = `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-black px-3 py-1 rounded-xl flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>작성중</span>`;
+        } else {
+          statusBadge = `<span class="bg-slate-950 text-slate-500 border border-white/5 text-xs font-medium px-3 py-1 rounded-xl">미제출</span>`;
+        }
+
+        const activeTag = isActive ? `<span class="text-[9px] bg-cyan-500 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase font-futuristic tracking-wider">ACTIVE</span>` : '';
+
+        weekCardsContainer.innerHTML += `
+          <div class="p-4 rounded-2xl border flex items-center justify-between ${borderClass}">
+            <div class="flex items-center space-x-3.5">
+              <span class="h-9 w-9 rounded-xl flex items-center justify-center font-futuristic font-black text-xs ${isActive ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-slate-950 text-slate-400'}">
+                ${w}W
+              </span>
+              <div>
+                <p class="font-black text-slate-200 text-xs sm:text-sm">${w}주차 정기 미션</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">글쓰기 + 댓글 4-Check</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              ${activeTag}
+              ${statusBadge}
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    };
+
+    // =========================================
+    // ADMIN DASHBOARD CONTROLLER
+    // =========================================
+    const renderAdminView = () => {
+      updateAdminStats();
+      renderAdminTable();
+      renderLinkCopier();
+      updateWeekButtons();
+    };
+
+    const updateWeekButtons = () => {
+      for (let w = 1; w <= 5; w++) {
+        const btn = document.getElementById(`btn-week-${w}`);
+        if (appState.activeWeek === w) {
+          btn.className = "flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition bg-gradient-to-tr from-emerald-500 to-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)] cursor-pointer";
+        } else {
+          btn.className = "flex-1 h-9 rounded-xl font-futuristic font-black text-xs transition bg-slate-900 border border-white/5 text-slate-400 hover:bg-slate-800 cursor-pointer";
+        }
+      }
+    };
+
+    const changeActiveWeek = (weekNum) => {
+      appState.activeWeek = weekNum;
+      showToast(`🛰️ 운영 타겟을 ${weekNum}주차로 궤도 변경하였습니다.`);
+      renderAdminView();
+    };
+
+    const updateAdminStats = () => {
+      document.querySelectorAll('.active-week-text').forEach(el => {
+        el.textContent = `${appState.activeWeek}주차`;
+      });
+
+      let totalCount = appState.users.length;
+      let juniors = appState.users.filter(u => u.role === 'Junior').length;
+      let seniors = appState.users.filter(u => u.role === 'Senior').length;
+
+      document.getElementById('admin-stat-total').textContent = `${totalCount}명`;
+      document.getElementById('admin-stat-ratio-summary').textContent = `주니어 ${juniors}명 / 시니어 ${seniors}명`;
+      
+      let successCount = 0;
+      let progressCount = 0;
+
+      appState.users.forEach(u => {
+        const sub = u.submissions[appState.activeWeek];
+        if (isMissionSuccess(sub)) successCount++;
+        else if (isMissionInProgress(sub)) progressCount++;
+      });
+
+      let failedCount = totalCount - successCount - progressCount;
+
+      document.getElementById('admin-stat-success').textContent = `${successCount}명`;
+      document.getElementById('admin-stat-progress-summary').textContent = `작성중 ${progressCount}명 / 미달성 ${failedCount}명`;
+
+      let percent = totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0;
+      document.getElementById('admin-stat-percent').textContent = `${percent}%`;
+      document.getElementById('admin-stat-progress-bar').style.width = `${percent}%`;
+    };
+
+    const handleAdminSearch = (val) => {
+      appState.filters.search = val;
+      renderAdminTable();
+    };
+
+    const setRoleFilter = (role) => {
+      appState.filters.role = role;
+      
+      const roles = ['All', 'Junior', 'Senior'];
+      roles.forEach(r => {
+        const btn = document.getElementById(`filter-role-${r.toLowerCase()}`);
+        if (r === role) {
+          btn.className = "px-3 py-1.5 rounded-xl text-xs font-black bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.3)] cursor-pointer";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer";
+        }
+      });
+
+      renderAdminTable();
+    };
+
+    const setStatusFilter = (status) => {
+      appState.filters.status = status;
+      
+      const statuses = ['All', 'Success', 'Ongoing', 'Failed'];
+      statuses.forEach(s => {
+        const btn = document.getElementById(`filter-status-${s.toLowerCase()}`);
+        if (s === status) {
+          btn.className = "px-2 py-1 rounded-lg text-[11px] font-black bg-slate-100 text-slate-950 cursor-pointer shadow-sm";
+        } else {
+          btn.className = "px-2 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white cursor-pointer";
+        }
+      });
+
+      renderAdminTable();
+    };
+
+    // --- BUILD DETAIL TABLE ROWS ---
+    const renderAdminTable = () => {
+      const tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = '';
+
+      const filtered = appState.users.filter(u => {
+        const sQuery = appState.filters.search.toLowerCase();
+        const numPhone = u.phone.replace(/[^0-9]/g, '');
+        const matchSearch = u.name.toLowerCase().includes(sQuery) || numPhone.includes(sQuery);
+        if (!matchSearch) return false;
+
+        if (appState.filters.role !== 'All' && u.role !== appState.filters.role) return false;
+
+        if (appState.filters.status !== 'All') {
+          const sub = u.submissions[appState.activeWeek];
+          const isS = isMissionSuccess(sub);
+          const isP = isMissionInProgress(sub);
+          
+          if (appState.filters.status === 'Success' && !isS) return false;
+          if (appState.filters.status === 'Ongoing' && !isP) return false;
+          if (appState.filters.status === 'Failed' && (isS || isP)) return false;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colSpan="9" class="text-center py-8 text-slate-500">기록된 우주 궤도 통신망에 일치하는 도전자 노드가 존재하지 않습니다.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(u => {
+        const successCount = getSuccessWeekCount(u);
+        const percent = Math.round((successCount / 5) * 100);
+
+        let rowHtml = `
+          <tr class="hover:bg-white/5 transition-all duration-150">
+            <td class="px-4 py-4 font-black text-slate-100">${u.name}</td>
+            <td class="px-4 py-4">
+              <span class="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest ${u.role === 'Junior' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}">
+                ${u.role === 'Junior' ? '주니어' : '시니어'}
+              </span>
+            </td>
+            <td class="px-4 py-4 text-slate-500 font-mono">${u.phone}</td>
+        `;
+
+        for (let w = 1; w <= 5; w++) {
+          const sub = u.submissions[w];
+          const isS = isMissionSuccess(sub);
+          const isP = isMissionInProgress(sub);
+
+          let icon = `<i data-lucide="x-circle" class="w-5 h-5 text-slate-700 hover:text-slate-500 transition-all"></i>`;
+          if (isS) {
+            icon = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)] hover:scale-110 transition-all"></i>`;
+          } else if (isP) {
+            icon = `<i data-lucide="clock" class="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.3)] hover:scale-110 transition-all"></i>`;
+          }
+
+          const linkBadge = sub.url ? `
+            <a href="${sub.url}" target="_blank" class="text-[9px] text-cyan-400 hover:underline truncate max-w-[80px]" title="${sub.url}">
+              좌표이동
+            </a>
+          ` : '<span class="text-[8px] text-slate-600 font-futuristic">NO_LINK</span>';
+
+          rowHtml += `
+            <td class="px-2 py-4 text-center">
+              <div class="flex flex-col items-center justify-center space-y-1">
+                <button 
+                  onclick="adminToggleWeekSubmission('${u.id}', ${w})" 
+                  title="수동 전체 완료로 즉시 전환"
+                  class="p-0.5 rounded-full hover:bg-white/5 transition-all focus:outline-none cursor-pointer"
+                >
+                  ${icon}
+                </button>
+                
+                ${linkBadge}
+
+                <div class="flex gap-0.5 text-[8px] font-mono select-none">
+                  <span onclick="adminToggleSubCheck('${u.id}', ${w}, 'check1')" class="cursor-pointer px-1 rounded-md ${sub.check1 ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30' : 'bg-slate-950 text-slate-600 border border-white/5'}" title="1분 체류">1</span>
+                  <span onclick="adminToggleSubCheck('${u.id}', ${w}, 'check2')" class="cursor-pointer px-1 rounded-md ${sub.check2 ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30' : 'bg-slate-950 text-slate-600 border border-white/5'}" title="서이추">2</span>
+                  <span onclick="adminToggleSubCheck('${u.id}', ${w}, 'check3')" class="cursor-pointer px-1 rounded-md ${sub.check3 ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30' : 'bg-slate-950 text-slate-600 border border-white/5'}" title="좋아요">3</span>
+                  <span onclick="adminToggleSubCheck('${u.id}', ${w}, 'check4')" class="cursor-pointer px-1 rounded-md ${sub.check4 ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30' : 'bg-slate-950 text-slate-600 border border-white/5'}" title="비밀댓글">4</span>
+                </div>
+              </div>
+            </td>
+          `;
+        }
+
+        rowHtml += `
+            <td class="px-4 py-4 text-center bg-white/5">
+              <div class="flex flex-col items-center">
+                <span class="px-2 py-1 rounded-xl font-futuristic font-black text-xs ${successCount === 5 ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-500/30' : 'bg-slate-900 border border-white/5 text-slate-400'}">
+                  ${successCount}W_COMPLETE
+                </span>
+                <span class="text-[9px] font-mono text-slate-500 mt-1">성공률 ${percent}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        tbody.innerHTML += rowHtml;
+      });
+
+      lucide.createIcons();
+    };
+
+    const adminToggleWeekSubmission = (userId, weekNum) => {
+      const u = appState.users.find(user => user.id === userId);
+      const sub = u.submissions[weekNum];
+      const isCurrentlySuccess = isMissionSuccess(sub);
+
+      appState.users = appState.users.map(user => {
+        if (user.id === userId) {
+          return {
+            ...user,
+            submissions: {
+              ...user.submissions,
+              [weekNum]: {
+                url: isCurrentlySuccess ? '' : 'https://blog.naver.com/manual_override_admin',
+                check1: !isCurrentlySuccess,
+                check2: !isCurrentlySuccess,
+                check3: !isCurrentlySuccess,
+                check4: !isCurrentlySuccess
+              }
+            }
+          };
+        }
+        return user;
+      });
+
+      saveUsersToStore(appState.users);
+      renderAdminView();
+    };
+
+    const adminToggleSubCheck = (userId, weekNum, checkField) => {
+      appState.users = appState.users.map(user => {
+        if (user.id === userId) {
+          const sub = user.submissions[weekNum];
+          return {
+            ...user,
+            submissions: {
+              ...user.submissions,
+              [weekNum]: {
+                ...sub,
+                [checkField]: !sub[checkField]
+              }
+            }
+          };
+        }
+        return user;
+      });
+
+      saveUsersToStore(appState.users);
+      renderAdminView();
+    };
+
+    const setAdminTab = (tab) => {
+      appState.adminTab = tab;
+      
+      const tabDashboard = document.getElementById('admin-tab-dashboard');
+      const tabCopy = document.getElementById('admin-tab-copy');
+      const btnDashboard = document.getElementById('tab-btn-dashboard');
+      const btnCopy = document.getElementById('tab-btn-copy');
+
+      if (tab === 'dashboard') {
+        tabDashboard.classList.remove('hidden');
+        tabCopy.classList.add('hidden');
+        btnDashboard.className = "px-5 py-2.5 rounded-xl text-xs font-black transition bg-slate-100 text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-pointer";
+        btnCopy.className = "px-5 py-2.5 rounded-xl text-xs font-black transition text-slate-400 hover:text-white cursor-pointer";
+      } else {
+        tabDashboard.classList.add('hidden');
+        tabCopy.classList.remove('hidden');
+        btnDashboard.className = "px-5 py-2.5 rounded-xl text-xs font-black transition text-slate-400 hover:text-white cursor-pointer";
+        btnCopy.className = "px-5 py-2.5 rounded-xl text-xs font-black transition bg-slate-100 text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-pointer";
+        renderLinkCopier();
+      }
+    };
+
+    // =========================================
+    // LINK EXPORTER ENGINE
+    // =========================================
+    const handleCopyWeekChange = (val) => {
+      renderLinkCopier();
+    };
+
+    const renderLinkCopier = () => {
+      const select = document.getElementById('copy-week-select');
+      const weekNum = parseInt(select.value);
+
+      const previewBox = document.getElementById('link-bundle-preview');
+      const text = generateLinkBundleText(weekNum);
+      
+      previewBox.textContent = text;
+    };
+
+    const generateLinkBundleText = (weekNum) => {
+      const weekSubmissions = appState.users
+        .filter(u => u.submissions[weekNum] && u.submissions[weekNum].url.trim() !== '')
+        .map((u, index) => {
+          const classTag = u.role === 'Junior' ? '주니어' : '시니어';
+          return `${index + 1}. [${classTag}] ${u.name}님: ${u.submissions[weekNum].url}`;
+        });
+
+      return `🛰️ [블챌 우주망] ${weekNum}주차 완료자 원본 주소 수집 리스트\n\n` + 
+             `총 ${weekSubmissions.length}개 국적의 도전자 코드가 식별되었습니다.\n` +
+             `----------------------------------------------------------------------\n` +
+             (weekSubmissions.length > 0 ? weekSubmissions.join('\n') : '업로드된 포스팅 URL 노드가 존재하지 않습니다.');
+    };
+
+    const copyLinksToClipboard = () => {
+      const select = document.getElementById('copy-week-select');
+      const text = generateLinkBundleText(parseInt(select.value));
+      
+      const hiddenArea = document.getElementById('copy-text-area');
+      hiddenArea.value = text;
+      hiddenArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const btnText = document.getElementById('copy-btn-text');
+          btnText.innerHTML = `<span class="text-emerald-400">🪐 복사 전송 완료!</span>`;
+          showToast('동기화 텍스트가 클립보드로 전송되었습니다. 즉시 붙여넣기 하세요!');
+          setTimeout(() => {
+            btnText.textContent = '전체 일괄 클립보드 복사';
+          }, 2500);
+        } else {
+          showToast('복사 전송 지연 발생. 수동 영역 지정을 시도해 보십시오.');
+        }
+      } catch (err) {
+        showToast('보안 샌드박스로 인한 클립보드 거부 발생.');
+      }
+    };
+
+    // First view entry
+    window.onload = () => {
+      selectLoginRole('Junior'); // Default selection visual
+      transitionToView('login');
+      initResponsiveSpace();
+    };
+
+    function initResponsiveSpace() {
+      const canvas = document.getElementById('space-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const maxParticles = 80;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initParticles();
+      }
+
+      class Star {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 1.5 + 0.2;
+          this.speedX = (Math.random() - 0.5) * 0.15;
+          this.speedY = (Math.random() - 0.5) * 0.15;
+          this.alpha = Math.random();
+          this.fadeSpeed = Math.random() * 0.01 + 0.002;
+          this.color = Math.random() > 0.5 ? 'rgba(16, 185, 129, ' : 'rgba(6, 182, 212, ';
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          this.alpha += this.fadeSpeed;
+          if (this.alpha <= 0 || this.alpha >= 1) {
+            this.fadeSpeed *= -1;
+          }
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+          ctx.fillStyle = this.color + this.alpha + ')';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function initParticles() {
+        particles = [];
+        const count = Math.min(maxParticles, (canvas.width * canvas.height) / 16000);
+        for (let i = 0; i < count; i++) {
+          particles.push(new Star());
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('resize', () => {
+        resize();
+      });
+      
+      resize();
+      animate();
+    }
+  </script>
+</body>
+</html>
