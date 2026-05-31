@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>초강스 블로그 초블 - 5주차 미션 센터</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts (Noto Sans KR) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti CDN (For galactic celebration explosion effects) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: radial-gradient(circle at center, #0b1528 0%, #030712 100%);
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    .orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+    /* Futuristic glassmorphism styles */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .neon-text-junior {
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.6), 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    .neon-text-senior {
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.6), 0 0 20px rgba(6, 182, 212, 0.3);
+    }
+    .neon-border-junior {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+      border-color: rgba(16, 185, 129, 0.6) !important;
+    }
+    .neon-border-senior {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+      border-color: rgba(6, 182, 212, 0.6) !important;
+    }
+    
+    /* Custom Dropdown Laser Hover & Glow Animation */
+    .cyber-dropdown-item {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease-in-out;
+      border-left: 3px solid transparent;
+    }
+    .cyber-dropdown-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transform: skewX(-25deg);
+      transition: none;
+    }
+    .cyber-dropdown-item:hover::before {
+      left: 150%;
+      transition: all 0.6s ease-in-out;
+    }
+    
+    .cyber-dropdown-item-junior:hover {
+      color: #10b981 !important;
+      text-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 15px rgba(16, 185, 129, 0.4);
+      border-left: 3px solid #10b981;
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .cyber-dropdown-item-senior:hover {
+      color: #06b6d4 !important;
+      text-shadow: 0 0 8px rgba(6, 182, 212, 0.8), 0 0 15px rgba(6, 182, 212, 0.4);
+      border-left: 3px solid #06b6d4;
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.5);
+    }
+    
+    #space-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Space Dust Canvas -->
+  <canvas id="space-canvas"></canvas>
+
+  <script>
+    const initSpaceCanvas = () => {
+      const canvas = document.getElementById('space-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      const numStars = 85;
+
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5 + 0.5,
+          color: i % 2 === 0 ? 'rgba(16, 185, 129, ' + (Math.random() * 0.4 + 0.1) + ')' : 'rgba(6, 182, 212, ' + (Math.random() * 0.4 + 0.1) + ')',
+          speed: Math.random() * 0.15 + 0.05
+        });
+      }
+
+      function animateSpace() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(star => {
+          star.y += star.speed;
+          if (star.y > canvas.height) {
+            star.y = 0;
+            star.x = Math.random() * canvas.width;
+          }
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = star.color;
+          ctx.fill();
+        });
+        requestAnimationFrame(animateSpace);
+      }
+      animateSpace();
+    };
+    window.addEventListener('load', initSpaceCanvas);
+  </script>
+
+  <!-- --- HEADER --- -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black px-3 py-1 rounded-md text-xs tracking-wider orbitron">27C CHB</span>
+        <h1 class="text-base font-bold sm:text-lg tracking-tight flex items-center gap-1.5">
+          <span>초강스 블로그</span>
+          <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent font-black px-1.5 border border-emerald-500/20 rounded-md shadow-inner neon-text-junior">초블</span>
+        </h1>
+      </div>
+      
+      <div id="user-header-status" class="flex items-center space-x-4">
+        <!-- Managed dynamically via JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- --- TOAST NOTIFICATION CENTER --- -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toast-box" class="bg-slate-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-emerald-500/30 backdrop-blur-md">
+      <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+      <span id="toast-message" class="text-xs font-semibold">알림 메시지</span>
+    </div>
+  </div>
+
+  <!-- --- MAIN WORKSPACE CONTAINER --- -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- =========================================
+        1. GATEWAY: CYBERPUNK PORTAL (LOGIN SCREEN)
+       ========================================= -->
+    <section id="login-view" class="max-w-4xl mx-auto my-8 grid md:grid-cols-2 gap-8 bg-slate-900/50 rounded-2xl shadow-2xl overflow-hidden border border-slate-800 glass-card">
+      
+      <!-- Left Column: Mission Decors -->
+      <div class="p-8 bg-gradient-to-br from-slate-950 to-slate-900 text-white flex flex-col justify-between border-r border-slate-800">
+        <div>
+          <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-widest orbitron">
+            SYSTEM PROTOCOL
+          </span>
+          <h2 class="text-2xl font-black mt-4 mb-6 leading-tight tracking-wide orbitron uppercase text-slate-100">
+            초블 5주차<br/>미션 관리 관제소
+          </h2>
+          
+          <div class="space-y-4 text-xs">
+            <!-- Mission 1 detail card -->
+            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 hover:border-emerald-500/20 transition">
+              <div class="flex items-start space-x-3">
+                <div class="p-1.5 bg-emerald-500/10 rounded-lg text-emerald-400">
+                  <i data-lucide="book-open" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-slate-100">✍️ 글쓰기 미션</h4>
+                  <p class="text-slate-400 text-[11px] mt-1 leading-relaxed">
+                    본인의 네이버 블로그 URL 주소 입력 칸이 제공됩니다. 정확한 포스팅 원본 전체 주소를 기입해 주세요.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mission 2 detail card -->
+            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 hover:border-cyan-500/20 transition">
+              <div class="flex items-start space-x-3">
+                <div class="p-1.5 bg-cyan-500/10 rounded-lg text-cyan-400">
+                  <i data-lucide="check-square" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-slate-100">💬 댓글달기 미션</h4>
+                  <p class="text-slate-400 text-[11px] mt-1 leading-relaxed">
+                    소통 활동 활성화를 위하여 아래 <span class="text-cyan-300 font-semibold">4가지 검증 체크박스</span>를 모두 완료해 주세요.
+                  </p>
+                  <div class="grid grid-cols-2 gap-1.5 mt-2.5">
+                    <span class="bg-slate-900 border border-slate-800 p-1.5 rounded text-[10px] text-center text-slate-300">⏳ 1분 이상 체류</span>
+                    <span class="bg-slate-900 border border-slate-800 p-1.5 rounded text-[10px] text-center text-slate-300">🤝 서로이웃 추가</span>
+                    <span class="bg-slate-900 border border-slate-800 p-1.5 rounded text-[10px] text-center text-slate-300">❤️ 좋아요 클릭</span>
+                    <span class="bg-slate-900 border border-slate-800 p-1.5 rounded text-[10px] text-center text-slate-300">🔒 비밀댓글 작성</span>
+                  </div>
+                  <p class="text-yellow-400 text-[9px] mt-2 font-medium flex items-center gap-1">
+                    <i data-lucide="alert-triangle" class="w-3 h-3 text-yellow-500 flex-shrink-0"></i>
+                    4가지 요건이 전부 성실하게 기록 및 체크되어야 최종 '성공' 판정이 내려집니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bottom counters -->
+        <div class="mt-6 border-t border-slate-800 pt-6">
+          <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+            <div class="bg-slate-950/50 p-2.5 rounded-lg border border-slate-850">
+              <span class="text-slate-500 block">총 멤버십</span>
+              <span class="font-bold text-slate-200 block text-sm mt-0.5">52명</span>
+            </div>
+            <div class="bg-slate-950/50 p-2.5 rounded-lg border border-slate-850">
+              <span class="text-slate-500 block">주니어 / 시니어</span>
+              <span class="font-bold text-emerald-400 block text-[11px] mt-1">25명 / 27명</span>
+            </div>
+            <div class="bg-slate-950/50 p-2.5 rounded-lg border border-slate-850">
+              <span class="text-slate-500 block">운영기간</span>
+              <span class="font-bold text-cyan-400 block text-sm mt-0.5">5주간</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Login Core -->
+      <div class="p-8 flex flex-col justify-center bg-slate-900/30">
+        <h3 class="text-xl font-bold tracking-tight text-slate-100 flex items-center gap-1.5">
+          <i data-lucide="key" class="text-emerald-500 w-5 h-5"></i>
+          <span>은하 챌린지 탑승</span>
+        </h3>
+        <p class="text-xs text-slate-400 mt-1 mb-6">소속 클래스를 지정하고 이름을 선택하여 워프하세요.</p>
+        
+        <!-- Class selection Tab -->
+        <div class="grid grid-cols-2 gap-2 mb-6">
+          <button 
+            type="button" 
+            onclick="setLoginClass('Junior')" 
+            id="tab-select-jr"
+            class="py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-emerald-500/40 bg-emerald-500/10 text-emerald-400 neon-border-junior"
+          >
+            👶 JUNIOR (25명)
+          </button>
+          <button 
+            type="button" 
+            onclick="setLoginClass('Senior')" 
+            id="tab-select-sr"
+            class="py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-slate-800 text-slate-400"
+          >
+            👑 SENIOR (27명)
+          </button>
+        </div>
+
+        <!-- Dynamic Form -->
+        <form id="portal-login-form" class="space-y-4">
+          
+          <!-- Custom Laser Select Box Wrapper -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">도전자 이름 선택</label>
+            <div class="relative">
+              <div 
+                id="custom-select-trigger" 
+                onclick="toggleCustomDropdown()"
+                class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 focus:outline-none flex justify-between items-center cursor-pointer hover:border-slate-700 transition"
+              >
+                <span id="selected-name-text">주니어 명단에서 본인을 확인해주세요</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+              </div>
+              
+              <!-- Custom Dropdown Panel with glowing states and Laser Sweep effect -->
+              <div 
+                id="custom-dropdown-panel" 
+                class="absolute left-0 mt-2 w-full max-h-56 bg-slate-950 border border-slate-800 rounded-xl overflow-y-auto hidden z-50 shadow-2xl divide-y divide-slate-900"
+              >
+                <!-- Items loaded dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">인증용 휴대폰 번호</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                <span class="text-[11px] font-black tracking-wide">010</span>
+              </span>
+              <input 
+                id="portal-phone"
+                type="tel"
+                placeholder="- 없이 숫자만 입력 (예: 12345678)"
+                class="w-full pl-12 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition focus:bg-slate-950"
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs shadow-lg transition duration-150 transform hover:translate-y-[-1px]"
+          >
+            관제 시스템 로그인
+          </button>
+        </form>
+
+        <div class="relative flex py-5 items-center">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-3 text-slate-500 text-[10px] uppercase tracking-wider orbitron">Admin Link</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+
+        <!-- Master Controller Quick Entry Form -->
+        <form id="portal-admin-form" class="space-y-2">
+          <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-850">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1.5">마스터 컨트롤러 입장</label>
+            <div class="flex gap-1.5">
+              <input 
+                id="portal-admin-pw"
+                type="password"
+                placeholder="보안 비밀번호 입력"
+                class="flex-1 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+              <button 
+                type="submit"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-750 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                권한 획득
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="portal-error" class="hidden mt-4 p-3 bg-rose-950/30 border border-rose-800/50 text-rose-400 text-[11px] rounded-lg flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-4 h-4 flex-shrink-0 text-rose-500"></i>
+          <span id="portal-error-text">입력 정보 불일치</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================
+        2. STUDENT VIEW: DASHBOARD & SUBMISSIONS
+       ========================================= -->
+    <section id="student-view" class="hidden space-y-8">
+      
+      <!-- Welcome Profile Deck -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+          <div id="student-icon" class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg">
+            도윤
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="student-name-header" class="text-xl font-bold text-slate-100">도윤</h3>
+              <span id="student-role-header" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                JUNIOR CLASS
+              </span>
+            </div>
+            <p id="student-meta-header" class="text-slate-400 text-xs mt-1">연락처 및 현황 수치 리딩 중...</p>
+          </div>
+        </div>
+        
+        <div class="bg-slate-950 px-4 py-3 rounded-xl border border-slate-850 text-xs flex items-center gap-3">
+          <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-glow"></div>
+          <span class="text-slate-300">자동 실시간 주차 감지: <b id="student-detected-week" class="text-emerald-400">1주차</b></span>
+        </div>
+      </div>
+
+      <!-- Workspace grid -->
+      <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Left Side Cards: 1~5W progress status -->
+        <div class="lg:col-span-1 space-y-4">
+          <h4 class="font-extrabold text-slate-200 text-sm flex items-center gap-2 tracking-wider uppercase orbitron">
+            <i data-lucide="satellite-dish" class="text-emerald-500 w-4.5 h-4.5"></i>
+            <span>5주 코스 완료 타임라인</span>
+          </h4>
+          
+          <div id="student-week-container" class="space-y-3">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Right Side: Active Week interactive forms -->
+        <div class="lg:col-span-2">
+          <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+            
+            <!-- Workspace header -->
+            <div class="bg-gradient-to-r from-slate-950 to-slate-900 p-6 border-b border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="text-[9px] bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-widest orbitron">
+                  WORKSPACE FORM
+                </span>
+                <h3 id="workspace-form-title" class="text-lg font-bold text-slate-100 mt-1">1주차 미션 데이터 전송</h3>
+              </div>
+              <div id="time-lock-badge" class="flex items-center gap-1 text-xs">
+                <!-- Lock / Unlock states -->
+              </div>
+            </div>
+
+            <!-- Form Workspace contents -->
+            <div class="p-6 space-y-6">
+              
+              <!-- Mission 1: URL input -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="link-2" class="text-emerald-400 w-4 h-4"></i>
+                    <span>미션 1: 자신의 네이버 블로그 포스팅 링크(URL)</span>
+                  </label>
+                  <span class="text-[9px] text-emerald-400 font-extrabold tracking-wider uppercase">* REQUIRED</span>
+                </div>
+                <input 
+                  id="student-url-input"
+                  type="url"
+                  placeholder="https://blog.naver.com/아이디/글번호"
+                  class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                />
+              </div>
+
+              <hr class="border-slate-800" />
+
+              <!-- Mission 2: Checklists -->
+              <div class="space-y-3">
+                <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <i data-lucide="check-square" class="text-emerald-400 w-4 h-4"></i>
+                  <span>미션 2: 타인 블로그 댓글 소통 4개 검증</span>
+                </label>
+                <p class="text-[11px] text-slate-400 leading-normal">
+                  동료 도전자들의 공간에 들러 아래의 4대 소통 행동 규칙을 정직하게 수행했는지 본인이 직접 체크합니다.
+                </p>
+
+                <div class="grid sm:grid-cols-2 gap-3">
+                  
+                  <!-- Check 1 -->
+                  <label id="container-check1" class="flex items-center p-3.5 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/40">
+                    <input 
+                      id="student-check1"
+                      type="checkbox"
+                      class="h-4.5 w-4.5 rounded border-slate-300 text-emerald-500 focus:ring-offset-0 focus:ring-0 mr-3 bg-slate-900"
+                    />
+                    <div>
+                      <p class="text-xs font-bold text-slate-200">1. 1분 이상 체류</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">상대 글 내용을 끝까지 정독했습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 2 -->
+                  <label id="container-check2" class="flex items-center p-3.5 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/40">
+                    <input 
+                      id="student-check2"
+                      type="checkbox"
+                      class="h-4.5 w-4.5 rounded border-slate-300 text-emerald-500 focus:ring-offset-0 focus:ring-0 mr-3 bg-slate-900"
+                    />
+                    <div>
+                      <p class="text-xs font-bold text-slate-200">2. 서로이웃 추가 (서이추)</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">상대방 블로그와 친구가 되었습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 3 -->
+                  <label id="container-check3" class="flex items-center p-3.5 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/40">
+                    <input 
+                      id="student-check3"
+                      type="checkbox"
+                      class="h-4.5 w-4.5 rounded border-slate-300 text-emerald-500 focus:ring-offset-0 focus:ring-0 mr-3 bg-slate-900"
+                    />
+                    <div>
+                      <p class="text-xs font-bold text-slate-200">3. 좋아요(공감) 클릭</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">글 하단에 공감 피드백 하트를 클릭했습니다.</p>
+                    </div>
+                  </label>
+
+                  <!-- Check 4 -->
+                  <label id="container-check4" class="flex items-center p-3.5 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/40">
+                    <input 
+                      id="student-check4"
+                      type="checkbox"
+                      class="h-4.5 w-4.5 rounded border-slate-300 text-emerald-500 focus:ring-offset-0 focus:ring-0 mr-3 bg-slate-900"
+                    />
+                    <div>
+                      <p class="text-xs font-bold text-slate-200">4. 비밀댓글 작성</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5">정성 담긴 응원을 담아 비밀댓글을 남겼습니다.</p>
+                    </div>
+                  </label>
+
+                </div>
+              </div>
+
+              <hr class="border-slate-800" />
+
+              <!-- Interactive submit triggers -->
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-[11px] text-slate-400 leading-normal max-w-sm">
+                  📢 <b>안내:</b> 현재 활성 주차인 <b><span class="curr-active-display">1주차</span></b>의 미션 데이터만 저장 및 실시간 업로드가 가능합니다.
+                </span>
+                
+                <button 
+                  id="student-save-btn"
+                  type="button"
+                  class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg animate-pulse"
+                >
+                  기록 동기화 및 제출
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================
+        3. TOTAL ADMIN PANEL: MANAGE & MONITOR 52 USERS
+       ========================================= -->
+    <section id="admin-view" class="hidden space-y-8">
+      
+      <!-- Top statistical indicators -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider orbitron">TOTAL ROSTER</p>
+            <h3 id="admin-total-indicator" class="text-2xl font-bold tracking-tight text-slate-100 mt-1">0명</h3>
+            <p id="admin-roster-breakdown" class="text-slate-400 text-[11px] mt-0.5">주니어 0명 / 시니어 0명</p>
+          </div>
+          <div class="h-11 w-11 bg-slate-950 border border-slate-800 text-emerald-400 rounded-xl flex items-center justify-center">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider orbitron"><span class="curr-active-display">1주차</span> SUCCESS</p>
+            <h3 id="admin-success-count" class="text-2xl font-bold tracking-tight text-emerald-400 mt-1">0명</h3>
+            <p id="admin-progress-summary" class="text-slate-400 text-[11px] mt-0.5">작성 중 0명 / 미달성 0명</p>
+          </div>
+          <div class="h-11 w-11 bg-slate-950 border border-slate-800 text-emerald-400 rounded-xl flex items-center justify-center">
+            <i data-lucide="badge-check" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider orbitron"><span class="curr-active-display">1주차</span> RATE</p>
+            <h3 id="admin-success-rate" class="text-2xl font-bold tracking-tight text-cyan-400 mt-1">0%</h3>
+            <div class="w-24 bg-slate-950 border border-slate-850 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div id="admin-rate-progressbar" class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-full rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="h-11 w-11 bg-slate-950 border border-slate-800 text-cyan-400 rounded-xl flex items-center justify-center">
+            <i data-lucide="line-chart" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Target Week Override Controls -->
+        <div class="glass-card p-4 rounded-2xl border border-slate-800">
+          <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-2 orbitron text-center">FORCE WEEK TIMEWARP</p>
+          <div class="flex items-center gap-1">
+            <button onclick="overrideActiveWeek(1)" id="btn-ovw-1" class="flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850">1W</button>
+            <button onclick="overrideActiveWeek(2)" id="btn-ovw-2" class="flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850">2W</button>
+            <button onclick="overrideActiveWeek(3)" id="btn-ovw-3" class="flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850">3W</button>
+            <button onclick="overrideActiveWeek(4)" id="btn-ovw-4" class="flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850">4W</button>
+            <button onclick="overrideActiveWeek(5)" id="btn-ovw-5" class="flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850">5W</button>
+          </div>
+          <p class="text-[9px] text-slate-500 mt-1.5 text-center leading-normal">수동 설정 시 사용자들이 해당 주간에 락온됩니다.</p>
+        </div>
+
+      </div>
+
+      <!-- Admin Tab Deck -->
+      <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+        <div class="border-b border-slate-800 bg-slate-950/50 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex space-x-1">
+            <button 
+              id="tab-btn-dashboard"
+              onclick="setAdminTab('dashboard')"
+              class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-white border border-slate-700"
+            >
+              📊 5주차 종합 현황 매트릭스
+            </button>
+            <button 
+              id="tab-btn-copy"
+              onclick="setAdminTab('copy')"
+              class="px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 border border-transparent"
+            >
+              🔗 제출 링크 수집 & 심플 뷰어
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 1: ADMIN MATRIX BOARD -->
+        <div id="admin-tab-dashboard" class="p-6">
+          
+          <!-- Filters & Search tools -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div class="relative flex-1 max-w-md">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </span>
+              <input 
+                id="admin-search"
+                type="text"
+                placeholder="도전자 이름 또는 번호 뒷자리 검색..."
+                oninput="handleAdminSearch(this.value)"
+                class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-350 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Class Filter -->
+              <div class="flex items-center space-x-1 bg-slate-950 border border-slate-800 p-1 rounded-xl">
+                <button onclick="setAdminRoleFilter('All')" id="btn-filt-all" class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-100 shadow-sm">전체</button>
+                <button onclick="setAdminRoleFilter('Junior')" id="btn-filt-jr" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200">주니어</button>
+                <button onclick="setAdminRoleFilter('Senior')" id="btn-filt-sr" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200">시니어</button>
+              </div>
+
+              <!-- Status Filter -->
+              <div class="flex items-center space-x-1 bg-slate-950 border border-slate-800 p-1 rounded-xl">
+                <button onclick="setAdminStatusFilter('All')" id="btn-fstat-all" class="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-100">전체</button>
+                <button onclick="setAdminStatusFilter('Success')" id="btn-fstat-ok" class="px-2 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200">성공</button>
+                <button onclick="setAdminStatusFilter('Ongoing')" id="btn-fstat-ing" class="px-2 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200">작성중</button>
+                <button onclick="setAdminStatusFilter('Failed')" id="btn-fstat-fail" class="px-2 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200">미달성</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Master grid matrix sheet -->
+          <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-950/40">
+            <table class="min-w-full divide-y divide-slate-800 text-left text-[11px]">
+              <thead class="bg-slate-950/80 uppercase">
+                <tr class="text-slate-400 font-bold">
+                  <th class="px-4 py-3.5">이름</th>
+                  <th class="px-4 py-3.5">클래스</th>
+                  <th class="px-4 py-3.5">연락처</th>
+                  <th class="px-4 py-3.5 text-center">1주차</th>
+                  <th class="px-4 py-3.5 text-center">2주차</th>
+                  <th class="px-4 py-3.5 text-center">3주차</th>
+                  <th class="px-4 py-3.5 text-center">4주차</th>
+                  <th class="px-4 py-3.5 text-center">5주차</th>
+                  <th class="px-4 py-3.5 text-center bg-slate-900/40">누적 완료</th>
+                </tr>
+              </thead>
+              <tbody id="matrix-table-body" class="divide-y divide-slate-850 bg-slate-900/10">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: LINK COPIER & CLEAN EXPORTER -->
+        <div id="admin-tab-copy" class="p-6 hidden max-w-4xl mx-auto space-y-6">
+          <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-850 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 class="font-bold text-slate-200 text-sm">실시간 제출 링크 & 완료 일시 수집기</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">외부 공유용으로 가공된 제출 명단이며, 완료 버튼을 누른 최종 저장 시각도 함께 기록됩니다.</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-medium">주차 선택:</span>
+              <select 
+                id="copy-week-selector" 
+                onchange="handleCopyWeekSelector(this.value)"
+                class="bg-slate-900 border border-slate-800 text-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold focus:outline-none"
+              >
+                <option value="1">1주차 미션</option>
+                <option value="2">2주차 미션</option>
+                <option value="3">3주차 미션</option>
+                <option value="4">4주차 미션</option>
+                <option value="5">5주차 미션</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Invisible copy text block -->
+          <textarea id="hidden-copy-buffer" class="absolute w-0 h-0 opacity-0 pointer-events-none"></textarea>
+
+          <!-- Clipboard exporter -->
+          <div class="relative">
+            <pre id="bulk-text-pre" class="bg-slate-950 text-emerald-400 p-6 rounded-2xl text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[350px] border border-slate-850">
+              <!-- Generated automatically -->
+            </pre>
+
+            <button 
+              onclick="copyExportText()"
+              class="absolute top-4 right-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3.5 py-2 rounded-lg text-xs flex items-center gap-1.5 transition active:scale-95"
+            >
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span id="copy-btn-label">모음글 전체 복사</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- --- GALACTIC SUCCESS CELEBRATION MODAL --- -->
+  <div id="modal-container" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 hidden transition-opacity duration-300 opacity-0">
+    <div class="glass-card max-w-sm w-full mx-4 p-8 rounded-2xl border border-emerald-500/30 text-center space-y-6 transform scale-90 transition-transform duration-300">
+      
+      <!-- Pulsing radar ring -->
+      <div class="relative flex items-center justify-center">
+        <div class="absolute h-20 w-20 bg-emerald-500/10 rounded-full animate-ping"></div>
+        <div class="h-16 w-16 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-slate-950 shadow-lg shadow-emerald-500/20">
+          <i data-lucide="award" class="w-8 h-8"></i>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="orbitron text-slate-100 text-lg font-black tracking-widest uppercase">MISSION UNLOCKED</h3>
+        <p class="text-xs text-slate-400">우주 연합 관제소로부터 완료 허가를 받았습니다.</p>
+      </div>
+
+      <!-- Welcome custom congrat text -->
+      <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-850 text-xs">
+        <p class="font-bold text-slate-100"><span id="celebrate-user-name" class="text-emerald-400">도전자</span>님</p>
+        <p class="text-emerald-300/90 font-semibold mt-1 tracking-wider"><span id="celebrate-week-num" class="orbitron font-bold">1</span>주차 미션이 완료되었습니다!</p>
+        <p class="text-slate-500 text-[10px] mt-1.5 font-medium">✨ 축하합니다! 우주 폭죽 프로토콜 작동 중 ✨</p>
+      </div>
+
+      <button 
+        onclick="closeCongratModal()"
+        class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl transition"
+      >
+        은하 궤도 복귀
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================
+      APPLICATION DATA & CONTROLLERS (JAVASCRIPT)
+     ========================================= -->
+  <script>
+    // --- 52 PERMANENT MEMBERSHIP ROSTER ---
+    const ROSTER_JUNIORS = ['상윤', '현선', '영유', '김종민', '은영', '은진', '윤정', '백화', '신선미', '보현', '원우', '윤선미', '이종민', '현주', '예희', '재근', '수아', '정원', '명화', '하나', '민종', '혜원', '혜빈', '도윤', '룡수']; // Exactly 25
+    const ROSTER_SENIORS = ['본식', '김민호', '보미', '소연', '원표', '식훈', '모리', '재웅', '장윤', '민하', '진성', '신영', '아영', '설지', '귀선', '은주', '기호', '동휘', '이민호', '세완', '영운', '인영', '해룡', '유진', '문수', '승빈', '룡수']; // Exactly 27
+
+    // Iframe-proof Safe Storage Layer (Fallback to volatile memory state if sandbox blocks access)
+    const safeStorage = {
+      getItem: (key) => {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          console.warn("Iframe blocks localstorage. Volatile memory fallback used.");
+          return window._sessionDbBackup ? JSON.stringify(window._sessionDbBackup) : null;
+        }
+      },
+      setItem: (key, value) => {
+        try {
+          localStorage.setItem(key, value);
+        } catch (e) {
+          console.warn("Iframe blocks localstorage. State will persist until refresh.");
+          window._sessionDbBackup = JSON.parse(value);
+        }
+      }
+    };
+
+    // Base mock initializer (Returns empty by default so roster is organically formed on user connect)
+    const initializeMockDatabase = () => {
+      const dataKey = 'CHALLENGE_DATABASE_27C';
+      try {
+        const stored = safeStorage.getItem(dataKey);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse stored database, resetting dynamic roster.", e);
+      }
+      const list = [];
+      safeStorage.setItem(dataKey, JSON.stringify(list));
+      return list;
+    };
+
+    // AUTO TIME DETECTORS (May 31 ~ Jul 4, 2026)
+    const TIME_TABLE = [
+      { week: 1, start: new Date('2026-05-31T00:00:00'), end: new Date('2026-06-06T23:59:59'), lock: new Date('2026-06-03T23:59:59') },
+      { week: 2, start: new Date('2026-06-07T00:00:00'), end: new Date('2026-06-13T23:59:59'), lock: new Date('2026-06-10T23:59:59') },
+      { week: 3, start: new Date('2026-06-14T00:00:00'), end: new Date('2026-06-20T23:59:59'), lock: new Date('2026-06-17T23:59:59') },
+      { week: 4, start: new Date('2026-06-21T00:00:00'), end: new Date('2026-06-27T23:59:59'), lock: new Date('2026-06-24T23:59:59') },
+      { week: 5, start: new Date('2026-06-28T00:00:00'), end: new Date('2026-07-04T23:59:59'), lock: new Date('2026-07-01T23:59:59') }
+    ];
+
+    const getSystemDetectedWeek = () => {
+      const today = new Date();
+      for (const t of TIME_TABLE) {
+        if (today >= t.start && today <= t.end) {
+          return t.week;
+        }
+      }
+      if (today < TIME_TABLE[0].start) return 1;
+      return 5;
+    };
+
+    const isCurrentWeekTimeLocked = (weekNum) => {
+      const today = new Date();
+      const sched = TIME_TABLE.find(t => t.week === weekNum);
+      if (!sched) return true;
+      return today > sched.lock;
+    };
+
+    // --- APP GLOBAL STATE ---
+    let appState = {
+      users: initializeMockDatabase(),
+      activeWeek: getSystemDetectedWeek(),
+      currentUser: null,
+      isAdmin: false,
+      adminTab: 'dashboard',
+      selectedLoginClass: 'Junior',
+      customDropdownOpen: false,
+      selectedName: null,
+      adminFilters: {
+        search: '',
+        role: 'All',
+        status: 'All'
+      },
+      bulkCopyWeek: getSystemDetectedWeek()
+    };
+
+    // Core validation checks
+    const isMissionSuccess = (sub) => {
+      return sub && sub.url && sub.url.trim() !== '' && sub.check1 && sub.check2 && sub.check3 && sub.check4;
+    };
+
+    const isMissionInProgress = (sub) => {
+      if (isMissionSuccess(sub)) return false;
+      return sub && ( (sub.url && sub.url.trim() !== '') || sub.check1 || sub.check2 || sub.check3 || sub.check4 );
+    };
+
+    const getSuccessWeekCount = (user) => {
+      let count = 0;
+      for (let w = 1; w <= 5; w++) {
+        if (isMissionSuccess(user.submissions[w])) count++;
+      }
+      return count;
+    };
+
+    const syncToLocalStorage = () => {
+      safeStorage.setItem('CHALLENGE_DATABASE_27C', JSON.stringify(appState.users));
+    };
+
+    // Timestamp helper (Appends Korean day of the week in parentheses)
+    const getFormattedTimestamp = () => {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+      const dayOfWeek = weekDays[d.getDay()];
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} (${dayOfWeek}) ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    const updateTriggerStyle = () => {
+      const trigger = document.getElementById('custom-select-trigger');
+      const textSpan = document.getElementById('selected-name-text');
+      
+      if (appState.selectedName) {
+        textSpan.textContent = appState.selectedName;
+        if (appState.selectedLoginClass === 'Junior') {
+          trigger.className = "w-full px-4 py-3 bg-slate-950 border rounded-xl text-xs focus:outline-none flex justify-between items-center cursor-pointer transition border-emerald-500 neon-border-junior text-emerald-400";
+        } else {
+          trigger.className = "w-full px-4 py-3 bg-slate-950 border rounded-xl text-xs focus:outline-none flex justify-between items-center cursor-pointer transition border-cyan-500 neon-border-senior text-cyan-400";
+        }
+      } else {
+        if (appState.selectedLoginClass === 'Junior') {
+          textSpan.textContent = '주니어 명단에서 본인을 확인해주세요';
+        } else {
+          textSpan.textContent = '시니어 명단에서 본인을 확인해주세요';
+        }
+        trigger.className = "w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 focus:outline-none flex justify-between items-center cursor-pointer hover:border-slate-700 transition";
+      }
+    };
+
+    const setLoginClass = (role) => {
+      appState.selectedLoginClass = role;
+      const btnJr = document.getElementById('tab-select-jr');
+      const btnSr = document.getElementById('tab-select-sr');
+
+      if (role === 'Junior') {
+        btnJr.className = "py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-emerald-500/40 bg-emerald-500/10 text-emerald-400 neon-border-junior";
+        btnSr.className = "py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-slate-800 text-slate-400";
+      } else {
+        btnJr.className = "py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-slate-800 text-slate-400";
+        btnSr.className = "py-2.5 rounded-xl text-xs font-black transition border flex items-center justify-center gap-1 border-cyan-500/40 bg-cyan-500/10 text-cyan-400 neon-border-senior";
+      }
+
+      appState.selectedName = null;
+      updateTriggerStyle();
+      buildDropdownItems();
+    };
+
+    const toggleCustomDropdown = () => {
+      const panel = document.getElementById('custom-dropdown-panel');
+      appState.customDropdownOpen = !appState.customDropdownOpen;
+      if (appState.customDropdownOpen) {
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+    };
+
+    const selectNameFromDropdown = (name) => {
+      appState.selectedName = name;
+      updateTriggerStyle();
+      toggleCustomDropdown();
+    };
+
+    const buildDropdownItems = () => {
+      const panel = document.getElementById('custom-dropdown-panel');
+      panel.innerHTML = '';
+      const roster = appState.selectedLoginClass === 'Junior' ? ROSTER_JUNIORS : ROSTER_SENIORS;
+      const neonGlowStyle = appState.selectedLoginClass === 'Junior' ? 'cyber-dropdown-item-junior hover:text-emerald-300' : 'cyber-dropdown-item-senior hover:text-cyan-300';
+
+      roster.forEach(name => {
+        const item = document.createElement('div');
+        item.className = `px-4 py-3 text-xs text-slate-350 cursor-pointer transition cyber-dropdown-item flex items-center justify-between ${neonGlowStyle}`;
+        item.innerHTML = `
+          <span class="font-bold">${name}</span>
+          <i data-lucide="crosshair" class="w-3.5 h-3.5 text-slate-600 opacity-50"></i>
+        `;
+        item.addEventListener('click', () => selectNameFromDropdown(name));
+        panel.appendChild(item);
+      });
+      lucide.createIcons();
+    };
+
+    // Close custom dropdown on outside click
+    document.addEventListener('click', (e) => {
+      const trigger = document.getElementById('custom-select-trigger');
+      const panel = document.getElementById('custom-dropdown-panel');
+      if (trigger && !trigger.contains(e.target) && panel && !panel.contains(e.target)) {
+        appState.customDropdownOpen = false;
+        panel.classList.add('hidden');
+      }
+    });
+
+    // Student gate auth submission (Zerol-block zero-error login flow)
+    document.getElementById('portal-login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Auto-fallback: if name is left unselected, instantly assign the first name from class
+      if (!appState.selectedName) {
+        const roster = appState.selectedLoginClass === 'Junior' ? ROSTER_JUNIORS : ROSTER_SENIORS;
+        appState.selectedName = roster[0];
+        updateTriggerStyle();
+      }
+
+      const inputPhoneRaw = document.getElementById('portal-phone').value || '';
+      const cleanInputPhone = inputPhoneRaw.replace(/[^0-9]/g, '') || '0000';
+
+      // Find user in matching state database (or auto register if new)
+      let matched = appState.users.find(u => u.name === appState.selectedName && u.role === appState.selectedLoginClass);
+
+      if (!matched) {
+        // Automatically append to dynamic roster list for smooth zero-block logins
+        const newUserId = `${appState.selectedLoginClass === 'Junior' ? 'jr' : 'sr'}-${Date.now()}`;
+        matched = {
+          id: newUserId,
+          name: appState.selectedName,
+          phone: `010-XXXX-${cleanInputPhone}`,
+          role: appState.selectedLoginClass,
+          submissions: {
+            1: { url: '', check1: false, check2: false, check3: false, check4: false, completedAt: '' },
+            2: { url: '', check1: false, check2: false, check3: false, check4: false, completedAt: '' },
+            3: { url: '', check1: false, check2: false, check3: false, check4: false, completedAt: '' },
+            4: { url: '', check1: false, check2: false, check3: false, check4: false, completedAt: '' },
+            5: { url: '', check1: false, check2: false, check3: false, check4: false, completedAt: '' }
+          }
+        };
+        appState.users.push(matched);
+      } else {
+        matched.phone = `010-XXXX-${cleanInputPhone}`;
+      }
+
+      syncToLocalStorage();
+      appState.currentUser = matched;
+      appState.isAdmin = false;
+      showToast(`${matched.name}님 즉시 은하 궤도 진입 완료!`);
+      transitionView('student');
+    });
+
+    // Admin gate login
+    document.getElementById('portal-admin-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pwInput = document.getElementById('portal-admin-pw').value;
+      const err = document.getElementById('portal-error');
+      err.classList.add('hidden');
+
+      if (pwInput === 'akdldpa1946') {
+        appState.isAdmin = true;
+        appState.currentUser = null;
+        showToast('총괄 관리자 보안 기재 승인 완료');
+        transitionView('admin');
+      } else {
+        setPortalError('보안 비밀번호가 올바르지 않습니다.');
+      }
+    });
+
+    const setPortalError = (msg) => {
+      const err = document.getElementById('portal-error');
+      const text = document.getElementById('portal-error-text');
+      text.textContent = msg;
+      err.classList.remove('hidden');
+    };
+
+    const handleLogOut = () => {
+      appState.currentUser = null;
+      appState.isAdmin = false;
+      document.getElementById('portal-phone').value = '';
+      document.getElementById('portal-admin-pw').value = '';
+      appState.selectedName = null;
+      updateTriggerStyle();
+      
+      showToast('성공적으로 은하 궤도에서 로그아웃했습니다.');
+      transitionView('login');
+    };
+
+    // Global View Router
+    const transitionView = (viewName) => {
+      const loginNode = document.getElementById('login-view');
+      const studentNode = document.getElementById('student-view');
+      const adminNode = document.getElementById('admin-view');
+
+      loginNode.classList.add('hidden');
+      studentNode.classList.add('hidden');
+      adminNode.classList.add('hidden');
+
+      renderGlobalHeader();
+
+      if (viewName === 'login') {
+        loginNode.classList.remove('hidden');
+        setLoginClass('Junior');
+      } else if (viewName === 'student') {
+        studentNode.classList.remove('hidden');
+        initializeStudentWorkspaceForm();
+        renderStudentView();
+      } else if (viewName === 'admin') {
+        adminNode.classList.remove('hidden');
+        renderAdminView();
+      }
+      lucide.createIcons();
+    };
+
+    const renderGlobalHeader = () => {
+      const headerStatus = document.getElementById('user-header-status');
+      headerStatus.innerHTML = '';
+
+      if (appState.currentUser) {
+        headerStatus.innerHTML = `
+          <div class="flex items-center space-x-3 text-xs">
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+              ${appState.currentUser.role === 'Junior' ? '👶 JUNIOR' : '👑 SENIOR'}
+            </span>
+            <span class="font-bold text-slate-200">${appState.currentUser.name} 도전자</span>
+            <button onclick="handleLogOut()" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 transition px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 text-slate-400">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 로그아웃
+            </button>
+          </div>
+        `;
+      } else if (appState.isAdmin) {
+        headerStatus.innerHTML = `
+          <div class="flex items-center space-x-3 text-xs">
+            <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full font-bold">
+              👑 MASTER SYSTEM
+            </span>
+            <button onclick="handleLogOut()" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 transition px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 text-slate-400">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 관리 종료
+            </button>
+          </div>
+        `;
+      }
+    };
+
+    // --- STUDENT WORKSPACE CONTROLLER ---
+    const initializeStudentWorkspaceForm = () => {
+      const user = appState.currentUser;
+      const sub = user.submissions[appState.activeWeek];
+
+      document.getElementById('student-url-input').value = sub.url || '';
+      document.getElementById('student-check1').checked = sub.check1 || false;
+      document.getElementById('student-check2').checked = sub.check2 || false;
+      document.getElementById('student-check3').checked = sub.check3 || false;
+      document.getElementById('student-check4').checked = sub.check4 || false;
+
+      syncStudentWorkspaceStyle();
+    };
+
+    const syncStudentWorkspaceStyle = () => {
+      const isLocked = isCurrentWeekTimeLocked(appState.activeWeek);
+      const urlInput = document.getElementById('student-url-input');
+      const saveBtn = document.getElementById('student-save-btn');
+      const badgeContainer = document.getElementById('time-lock-badge');
+
+      // Sync active classes inside checkboxes
+      for (let i = 1; i <= 4; i++) {
+        const cb = document.getElementById(`student-check${i}`);
+        const box = document.getElementById(`container-check${i}`);
+        
+        if (isLocked) {
+          cb.disabled = true;
+        } else {
+          cb.disabled = false;
+        }
+
+        if (cb.checked) {
+          box.className = "flex items-center p-3.5 rounded-xl border cursor-pointer transition border-emerald-500 bg-emerald-500/10";
+        } else {
+          box.className = "flex items-center p-3.5 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/40";
+        }
+      }
+
+      if (isLocked) {
+        urlInput.disabled = true;
+        urlInput.className = "w-full px-4 py-3 bg-slate-950 border border-slate-900 rounded-xl text-xs text-slate-600 focus:outline-none cursor-not-allowed";
+        saveBtn.disabled = true;
+        saveBtn.className = "w-full sm:w-auto px-8 py-3 bg-slate-900 text-slate-600 border border-slate-850 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5";
+        saveBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i> ⚠️ 수정 기한 만료 (수요일 경과) 🔒`;
+
+        badgeContainer.innerHTML = `
+          <span class="px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold rounded-lg flex items-center gap-1">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i> 수정불가 (기간만료)
+          </span>
+        `;
+      } else {
+        urlInput.disabled = false;
+        urlInput.className = "w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition";
+        saveBtn.disabled = false;
+        saveBtn.className = "w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg";
+        saveBtn.innerHTML = `기록 동기화 및 제출`;
+
+        badgeContainer.innerHTML = `
+          <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold rounded-lg flex items-center gap-1 animate-pulse">
+            <i data-lucide="unlock" class="w-3.5 h-3.5"></i> 수정가능
+          </span>
+        `;
+      }
+    };
+
+    // Watch Checkbox adjustments
+    [1, 2, 3, 4].forEach(i => {
+      document.getElementById(`student-check${i}`).addEventListener('change', syncStudentWorkspaceStyle);
+    });
+
+    // Save student submission handler (With Galactic Confetti explosion triggers)
+    document.getElementById('student-save-btn').addEventListener('click', () => {
+      const user = appState.currentUser;
+      if (!user) return;
+
+      const urlVal = document.getElementById('student-url-input').value.trim();
+      const chk1 = document.getElementById('student-check1').checked;
+      const chk2 = document.getElementById('student-check2').checked;
+      const chk3 = document.getElementById('student-check3').checked;
+      const chk4 = document.getElementById('student-check4').checked;
+
+      const previouslyCompleted = isMissionSuccess(user.submissions[appState.activeWeek]);
+      const currentlyCompleted = isMissionSuccess({ url: urlVal, check1: chk1, check2: chk2, check3: chk3, check4: chk4 });
+
+      let completedTime = user.submissions[appState.activeWeek].completedAt || '';
+      if (currentlyCompleted && !previouslyCompleted) {
+        completedTime = getFormattedTimestamp();
+      } else if (!currentlyCompleted) {
+        completedTime = '';
+      }
+
+      // Safeguard: Ensure user exists in master roster array before map update
+      let userInList = appState.users.find(u => u.id === user.id);
+      if (!userInList) {
+        userInList = { ...user };
+        appState.users.push(userInList);
+      }
+
+      appState.users = appState.users.map(u => {
+        if (u.id === user.id) {
+          return {
+            ...u,
+            submissions: {
+              ...u.submissions,
+              [appState.activeWeek]: {
+                url: urlVal,
+                check1: chk1,
+                check2: chk2,
+                check3: chk3,
+                check4: chk4,
+                completedAt: completedTime
+              }
+            }
+          };
+        }
+        return u;
+      });
+
+      syncToLocalStorage();
+      appState.currentUser = appState.users.find(u => u.id === user.id);
+
+      showToast('우주 연합 관제소 기지 내부 데이터베이스에 정보가 동기화되었습니다.');
+      renderStudentView();
+
+      // Launch galactic celebration confetti modal if newly completed
+      if (currentlyCompleted && !previouslyCompleted) {
+        launchCongratModal(user.name, appState.activeWeek);
+      }
+    });
+
+    // Celebration modal routines
+    const launchCongratModal = (name, week) => {
+      document.getElementById('celebrate-user-name').textContent = name;
+      document.getElementById('celebrate-week-num').textContent = week;
+
+      const modal = document.getElementById('modal-container');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.scale-90').classList.remove('scale-90');
+      }, 10);
+
+      // Fire physics galaxy stardust confetti fireworks
+      fireConfettiHelix();
+    };
+
+    const fireConfettiHelix = () => {
+      const end = Date.now() + (3 * 1000);
+      const colors = ['#10b981', '#06b6d4', '#14b8a6', '#f59e0b'];
+
+      (function frame() {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.8 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.8 },
+          colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    };
+
+    const closeCongratModal = () => {
+      const modal = document.getElementById('modal-container');
+      modal.classList.add('opacity-0');
+      modal.querySelector('.glass-card').classList.add('scale-90');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    };
+
+    const renderStudentView = () => {
+      const user = appState.currentUser;
+      document.getElementById('student-icon').textContent = user.name.slice(0, 2);
+      document.getElementById('student-name-header').textContent = user.name;
+      
+      const roleHeader = document.getElementById('student-role-header');
+      if (user.role === 'Junior') {
+        roleHeader.textContent = '🍼 JUNIOR CLASS';
+        roleHeader.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+      } else {
+        roleHeader.textContent = '👑 SENIOR CLASS';
+        roleHeader.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+      }
+
+      document.getElementById('student-meta-header').textContent = `휴대폰: ${user.phone} | 현재 총 미션 달성 개수: ${getSuccessWeekCount(user)}개 / 5개`;
+      document.getElementById('student-detected-week').textContent = `${appState.activeWeek}주차`;
+
+      // Build cards
+      const cont = document.getElementById('student-week-container');
+      cont.innerHTML = '';
+
+      for (let w = 1; w <= 5; w++) {
+        const sub = user.submissions[w];
+        const isS = isMissionSuccess(sub);
+        const isP = isMissionInProgress(sub);
+        const isCurrent = w === appState.activeWeek;
+
+        let borderClass = isCurrent ? 'border-emerald-500/30 ring-2 ring-emerald-500/10 bg-emerald-500/5' : 'border-slate-800 bg-slate-900/20';
+        let statusBadge = '';
+        let timeStampHtml = '';
+
+        if (isS) {
+          statusBadge = `
+            <div class="flex items-center space-x-2">
+              <button onclick="launchCongratModal('${user.name}', ${w})" class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg flex items-center gap-1 font-bold hover:bg-emerald-500/20 transition">
+                🚀 축하 재생
+              </button>
+              <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold px-2 py-1 rounded-lg flex items-center gap-1">
+                성공
+              </span>
+            </div>
+          `;
+          if (sub.completedAt) {
+            timeStampHtml = `
+              <div class="mt-1.5 flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 rounded px-2 py-0.5 w-max font-mono">
+                <i data-lucide="calendar" class="w-3 h-3"></i>
+                <span>제출완료: ${sub.completedAt}</span>
+              </div>
+            `;
+          }
+        } else if (isP) {
+          statusBadge = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-extrabold px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>작성중</span>`;
+          timeStampHtml = `
+            <div class="mt-1.5 text-[10px] text-amber-500 font-medium">
+              ⏳ 실시간 임시 작성 중 (제출 미완료)
+            </div>
+          `;
+        } else {
+          statusBadge = `<span class="bg-slate-900 border border-slate-800 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-lg">미제출</span>`;
+          timeStampHtml = `
+            <div class="mt-1.5 text-[10px] text-slate-655 font-medium">
+              ❌ 등록된 이력이 없습니다.
+            </div>
+          `;
+        }
+
+        const tagActive = isCurrent ? `<span class="text-[9px] font-black bg-emerald-500 text-slate-950 px-1.5 py-0.5 rounded">NOW</span>` : '';
+
+        cont.innerHTML += `
+          <div class="p-4 rounded-xl border transition flex flex-col gap-2 ${borderClass}">
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center space-x-3">
+                <span class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs ${isCurrent ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 border border-slate-800 text-slate-400'}">
+                  ${w}W
+                </span>
+                <div>
+                  <p class="font-bold text-slate-200 text-xs">${w}주차 미션</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5">글쓰기 + 댓글달기 4종 체크</p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                ${tagActive}
+                ${statusBadge}
+              </div>
+            </div>
+            ${timeStampHtml}
+          </div>
+        `;
+      }
+      
+      // Show active week completion details in the editor workspace if successful
+      const currentActiveSub = user.submissions[appState.activeWeek];
+      const isCurrentActiveS = isMissionSuccess(currentActiveSub);
+      const workspaceTitle = document.getElementById('workspace-form-title');
+      
+      if (isCurrentActiveS && currentActiveSub.completedAt) {
+        workspaceTitle.innerHTML = `
+          <div class="flex flex-col gap-1">
+            <span>${appState.activeWeek}주차 미션 데이터 전송</span>
+            <span class="text-[10px] font-mono font-medium text-emerald-400 flex items-center gap-1 mt-1 bg-emerald-950/50 border border-emerald-500/20 rounded px-2 py-0.5 w-max">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+              최종 승인 일시: ${currentActiveSub.completedAt}
+            </span>
+          </div>
+        `;
+      } else {
+        workspaceTitle.innerHTML = `${appState.activeWeek}주차 미션 데이터 전송`;
+      }
+
+      lucide.createIcons();
+    };
+
+    // --- ADMIN SYSTEM PANEL INTERACTIVE CONTROLLER ---
+    const renderAdminView = () => {
+      updateAdminIndicators();
+      buildAdminGridMatrix();
+      renderLinkCopier();
+    };
+
+    const updateAdminIndicators = () => {
+      document.querySelectorAll('.curr-active-display').forEach(el => {
+        el.textContent = `${appState.activeWeek}주차`;
+      });
+
+      // Synchronize week timewarp override buttons
+      for (let w = 1; w <= 5; w++) {
+        const btn = document.getElementById(`btn-ovw-${w}`);
+        if (appState.activeWeek === w) {
+          btn.className = "flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-emerald-500 text-slate-950 border border-emerald-400/50 shadow-lg shadow-emerald-500/10";
+        } else {
+          btn.className = "flex-1 h-8 rounded-lg font-bold text-[10px] transition bg-slate-950 text-slate-400 border border-slate-850 hover:bg-slate-900";
+        }
+      }
+
+      // Success indicators calculation
+      const total = appState.users.length;
+      let ok = 0;
+      let ing = 0;
+
+      appState.users.forEach(u => {
+        const sub = u.submissions[appState.activeWeek];
+        if (isMissionSuccess(sub)) ok++;
+        else if (isMissionInProgress(sub)) ing++;
+      });
+
+      let fail = total - ok - ing;
+
+      let juniorsCount = appState.users.filter(u => u.role === 'Junior').length;
+      let seniorsCount = appState.users.filter(u => u.role === 'Senior').length;
+
+      document.getElementById('admin-total-indicator').textContent = `${total}명`;
+      document.getElementById('admin-roster-breakdown').textContent = `주니어 ${juniorsCount}명 / 시니어 ${seniorsCount}명`;
+
+      document.getElementById('admin-success-count').textContent = `${ok}명`;
+      document.getElementById('admin-progress-summary').textContent = `작성중 ${ing}명 / 미달성 ${fail}명`;
+
+      const rate = total > 0 ? Math.round((ok / total) * 100) : 0;
+      document.getElementById('admin-success-rate').textContent = `${rate}%`;
+      document.getElementById('admin-rate-progressbar').style.width = `${rate}%`;
+    };
+
+    const overrideActiveWeek = (weekNum) => {
+      appState.activeWeek = weekNum;
+      showToast(`통제 주차를 강제로 [ ${weekNum}주차 ]로 타임워프 하였습니다.`);
+      renderAdminView();
+    };
+
+    const setAdminTab = (tab) => {
+      appState.adminTab = tab;
+      const tabDash = document.getElementById('admin-tab-dashboard');
+      const tabCopy = document.getElementById('admin-tab-copy');
+      const btnDash = document.getElementById('tab-btn-dashboard');
+      const btnCopy = document.getElementById('tab-btn-copy');
+
+      if (tab === 'dashboard') {
+        tabDash.classList.remove('hidden');
+        tabCopy.classList.add('hidden');
+        btnDash.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-white border border-slate-700";
+        btnCopy.className = "px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 border border-transparent";
+      } else {
+        tabDash.classList.add('hidden');
+        tabCopy.classList.remove('hidden');
+        btnDash.className = "px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 border border-transparent";
+        btnCopy.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-white border border-slate-700";
+        renderLinkCopier();
+      }
+    };
+
+    // Filter events
+    const handleAdminSearch = (val) => {
+      appState.adminFilters.search = val;
+      buildAdminGridMatrix();
+    };
+
+    const setAdminRoleFilter = (role) => {
+      appState.adminFilters.role = role;
+      const roles = ['All', 'Junior', 'Senior'];
+      
+      roles.forEach(r => {
+        const btn = document.getElementById(`btn-filt-${r.toLowerCase()}`);
+        if (r === role) {
+          btn.className = "px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-100 shadow-sm";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200";
+        }
+      });
+      buildAdminGridMatrix();
+    };
+
+    const setAdminStatusFilter = (status) => {
+      appState.adminFilters.status = status;
+      const statuses = ['All', 'Success', 'Ongoing', 'Failed'];
+
+      statuses.forEach(s => {
+        const id = s === 'Ongoing' ? 'ing' : s === 'Success' ? 'ok' : s === 'Failed' ? 'fail' : 'all';
+        const btn = document.getElementById(`btn-fstat-${id}`);
+        if (s === status) {
+          btn.className = "px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-100";
+        } else {
+          btn.className = "px-2 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 hover:text-slate-200";
+        }
+      });
+      buildAdminGridMatrix();
+    };
+
+    // Build the master sheet grid
+    const buildAdminGridMatrix = () => {
+      const tbody = document.getElementById('matrix-table-body');
+      tbody.innerHTML = '';
+
+      const query = appState.adminFilters.search.toLowerCase();
+      const roleFilt = appState.adminFilters.role;
+      const statFilt = appState.adminFilters.status;
+
+      const filtered = appState.users.filter(u => {
+        // Search query
+        const cleanPhone = u.phone.replace(/[^0-9]/g, '');
+        const matchSearch = u.name.toLowerCase().includes(query) || cleanPhone.includes(query);
+        if (!matchSearch) return false;
+
+        // Role Filter
+        if (roleFilt !== 'All' && u.role !== roleFilt) return false;
+
+        // Status filter
+        if (statFilt !== 'All') {
+          const sub = u.submissions[appState.activeWeek];
+          const isS = isMissionSuccess(sub);
+          const isP = isMissionInProgress(sub);
+          if (statFilt === 'Success' && !isS) return false;
+          if (statFilt === 'Ongoing' && !isP) return false;
+          if (statFilt === 'Failed' && (isS || isP)) return false;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-500">접속하거나 등록한 챌린저가 현재 없습니다.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(u => {
+        const cumulativeCount = getSuccessWeekCount(u);
+        const cumPercent = Math.round((cumulativeCount / 5) * 100);
+
+        let row = `
+          <tr class="hover:bg-slate-900/40 text-slate-300">
+            <td class="px-4 py-3 font-bold text-slate-100">${u.name}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded text-[9px] font-bold ${u.role === 'Junior' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-cyan-500/10 text-cyan-400'}">
+                ${u.role === 'Junior' ? '주니어' : '시니어'}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-500 font-mono">${u.phone}</td>
+        `;
+
+        // 1 to 5 week indicators
+        for (let w = 1; w <= 5; w++) {
+          const sub = u.submissions[w];
+          const isS = isMissionSuccess(sub);
+          const isP = isMissionInProgress(sub);
+
+          let markIcon = `<i data-lucide="minus" class="w-4 h-4 text-slate-700"></i>`;
+          if (isS) {
+            markIcon = `<i data-lucide="check-circle-2" class="w-4.5 h-4.5 text-emerald-400 animate-pulse"></i>`;
+          } else if (isP) {
+            markIcon = `<i data-lucide="clock" class="w-4.5 h-4.5 text-amber-500"></i>`;
+          }
+
+          const linkTag = sub.url ? `
+            <a href="${sub.url}" target="_blank" class="text-[9px] text-sky-400 underline truncate max-w-[65px] hover:text-sky-300 font-semibold" title="${sub.url}">
+              글보기
+            </a>
+          ` : '';
+
+          // Format timestamp nicely for table cells (e.g. "2026-06-01 (월) 10:15:30" -> "(월) 10:15")
+          let microTimeHtml = '';
+          if (sub.completedAt) {
+            try {
+              const parts = sub.completedAt.split(' ');
+              const dayPart = parts[1] || ''; // (월)
+              const timePart = parts[2] ? parts[2].substring(0, 5) : ''; // 10:15
+              microTimeHtml = `
+                <span class="text-[8px] text-emerald-400/80 font-mono scale-90 block tracking-tighter mt-1" title="상세 완료시각: ${sub.completedAt}">
+                  ${dayPart} ${timePart}
+                </span>
+              `;
+            } catch (e) {
+              microTimeHtml = `<span class="text-[8px] text-emerald-400/80 font-mono scale-90 block mt-1" title="${sub.completedAt}">완료</span>`;
+            }
+          }
+
+          row += `
+            <td class="px-1 py-3 text-center border-r border-slate-900/40">
+              <div class="flex flex-col items-center justify-center space-y-1">
+                <!-- Master Override On-click Toggles -->
+                <button 
+                  onclick="adminInstantToggleSubmission('${u.id}', ${w})"
+                  class="p-0.5 hover:bg-slate-800 rounded transition focus:outline-none animate-none"
+                  title="일괄 처리 조정"
+                >
+                  ${markIcon}
+                </button>
+                ${linkTag}
+                <div class="flex gap-0.5 text-[8px] font-mono select-none">
+                  <span onclick="adminIndividualCheckToggle('${u.id}', ${w}, 'check1')" class="cursor-pointer px-0.5 rounded ${sub.check1 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-900 text-slate-700'}">1</span>
+                  <span onclick="adminIndividualCheckToggle('${u.id}', ${w}, 'check2')" class="cursor-pointer px-0.5 rounded ${sub.check2 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-700 text-slate-700'}">2</span>
+                  <span onclick="adminIndividualCheckToggle('${u.id}', ${w}, 'check3')" class="cursor-pointer px-0.5 rounded ${sub.check3 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-900 text-slate-700'}">3</span>
+                  <span onclick="adminIndividualCheckToggle('${u.id}', ${w}, 'check4')" class="cursor-pointer px-0.5 rounded ${sub.check4 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-900 text-slate-700'}">4</span>
+                </div>
+                ${microTimeHtml}
+              </div>
+            </td>
+          `;
+        }
+
+        // Cumulative col
+        row += `
+            <td class="px-4 py-3 text-center bg-slate-950/20 font-bold">
+              <div class="flex flex-col items-center">
+                <span class="text-xs ${cumulativeCount === 5 ? 'text-yellow-400 font-black neon-text-senior' : 'text-slate-300'}">${cumulativeCount}W 통과</span>
+                <span class="text-[9px] text-slate-500 mt-0.5">${cumPercent}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        tbody.innerHTML += row;
+      });
+
+      lucide.createIcons();
+    };
+
+    // Fast Admin Override Toggles
+    const adminInstantToggleSubmission = (userId, week) => {
+      const u = appState.users.find(user => user.id === userId);
+      const sub = u.submissions[week];
+      const isCurrentlySuccess = isMissionSuccess(sub);
+
+      appState.users = appState.users.map(user => {
+        if (user.id === userId) {
+          return {
+            ...user,
+            submissions: {
+              ...user.submissions,
+              [week]: {
+                url: isCurrentlySuccess ? '' : 'https://blog.naver.com/manual_override',
+                check1: !isCurrentlySuccess,
+                check2: !isCurrentlySuccess,
+                check3: !isCurrentlySuccess,
+                check4: !isCurrentlySuccess,
+                completedAt: isCurrentlySuccess ? '' : getFormattedTimestamp()
+              }
+            }
+          };
+        }
+        return user;
+      });
+
+      syncToLocalStorage();
+      renderAdminView();
+    };
+
+    const adminIndividualCheckToggle = (userId, week, checkField) => {
+      appState.users = appState.users.map(user => {
+        if (user.id === userId) {
+          const sub = user.submissions[week];
+          const nextVal = !sub[checkField];
+          
+          const updatedSub = {
+            ...sub,
+            [checkField]: nextVal
+          };
+
+          // Auto stamp finished date on full lock
+          const isS = isMissionSuccess(updatedSub);
+          updatedSub.completedAt = isS ? (sub.completedAt ? sub.completedAt : getFormattedTimestamp()) : '';
+
+          return {
+            ...user,
+            submissions: {
+              ...user.submissions,
+              [week]: updatedSub
+            }
+          };
+        }
+        return user;
+      });
+
+      syncToLocalStorage();
+      renderAdminView();
+    };
+
+
+    // --- LINK COPIER BULK EXPORTER ---
+    const handleCopyWeekSelector = (val) => {
+      appState.bulkCopyWeek = parseInt(val);
+      renderLinkCopier();
+    };
+
+    const renderLinkCopier = () => {
+      const select = document.getElementById('copy-week-selector');
+      select.value = appState.bulkCopyWeek;
+
+      const pre = document.getElementById('bulk-text-pre');
+      const text = generateBulkTemplateText(appState.bulkCopyWeek);
+      pre.textContent = text;
+    };
+
+    const generateBulkTemplateText = (weekNum) => {
+      const completedList = appState.users
+        .filter(u => u.submissions[weekNum] && u.submissions[weekNum].url.trim() !== '')
+        .map((u, index) => {
+          const cTag = u.role === 'Junior' ? '주니어' : '시니어';
+          const sub = u.submissions[weekNum];
+          const timeText = sub.completedAt ? `(완료시각: ${sub.completedAt})` : '(완료)';
+          return `${index + 1}. [${cTag}] ${u.name}님 ${timeText}\n   └ ${sub.url}`;
+        });
+
+      return `📢 [초블] ${weekNum}주차 글쓰기 미션 제출 링크 전체 모음\n\n` + 
+             `총 ${completedList.length}명이 제출을 완료하였습니다.\n` +
+             `--------------------------------------------------\n` +
+             (completedList.length > 0 ? completedList.join('\n\n') : '제출 기록이 존재하지 않습니다.');
+    };
+
+    const copyExportText = () => {
+      const text = generateBulkTemplateText(appState.bulkCopyWeek);
+      const buffer = document.getElementById('hidden-copy-buffer');
+      buffer.value = text;
+      buffer.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const label = document.getElementById('copy-btn-label');
+          label.innerHTML = `<span class="text-slate-950 font-black">클립보드 복사 성공!</span>`;
+          showToast('성공적으로 양식을 가공하여 클립보드에 담았습니다.');
+          setTimeout(() => {
+            label.textContent = '모음글 전체 복사';
+          }, 2000);
+        } else {
+          showToast('복사에 실패했습니다. 수동 마우스 드래그로 복사해 주세요.');
+        }
+      } catch (err) {
+        showToast('클립보드 접근 권한이 제한되었습니다.');
+      }
+    };
+
+
+    // Window First Initializer
+    window.onload = () => {
+      transitionView('login');
+    };
+  </script>
+</body>
+</html>
